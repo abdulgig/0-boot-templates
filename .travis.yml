@@ -8,7 +8,6 @@ matrix:
 
       install:
         - pip3 install codecov pytest pytest-cov
-        - pip3 install -r requirements.txt
         - ./utils/jumspcale_install.sh
         - ./utils/zrobot_install.sh
 
