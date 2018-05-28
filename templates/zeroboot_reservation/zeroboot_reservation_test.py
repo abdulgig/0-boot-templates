@@ -1,33 +1,19 @@
 import os
 import pytest
-import tempfile
-import shutil
-from unittest import TestCase
-from unittest import mock
 from unittest.mock import MagicMock
 
 from js9 import j
-from zerorobot import config, template_collection
-from zerorobot.template_uid import TemplateUID
 from zerorobot.template.state import StateCheckError
 
+from JumpScale9Zrobot.test.utils import ZrobotBaseTest
 from zeroboot_reservation import ZerobootReservation
 
-class TestZerobootReservationTemplate(TestCase):
+class TestZerobootReservationTemplate(ZrobotBaseTest):
     @classmethod
     def setUpClass(cls):
-        config.DATA_DIR = '/tmp'
-        config.DATA_DIR = tempfile.mkdtemp(prefix='0-boot-templates_')
-        ZerobootReservation.template_uid = TemplateUID.parse(
-            'github.com/zero-os/0-boot-templates/%s/%s' % (
-                ZerobootReservation.template_name, ZerobootReservation.version))
+        super().preTest(os.path.dirname(__file__), ZerobootReservation)
 
         cls._valid_data = {"zerobootPool": "pool1", "ipxeUrl": "some-url"}
-
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
 
     def test_validation(self):
         reservation = ZerobootReservation(name="test", data=self._valid_data)

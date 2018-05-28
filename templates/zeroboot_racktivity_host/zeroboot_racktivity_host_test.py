@@ -1,27 +1,18 @@
 import os
 import pytest
-import tempfile
-import shutil
-from unittest import TestCase
 from unittest import mock
 from unittest.mock import MagicMock
 
 from js9 import j
-from zerorobot import config, template_collection
-from zerorobot.template_uid import TemplateUID
 from zerorobot.template.state import StateCheckError
 
+from JumpScale9Zrobot.test.utils import ZrobotBaseTest
 from zeroboot_racktivity_host import ZerobootRacktivityHost
 
-class TestZerobootRacktivityHostTemplate(TestCase):
+class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
     @classmethod
     def setUpClass(cls):
-        config.DATA_DIR = '/tmp'
-        config.DATA_DIR = tempfile.mkdtemp(prefix='0-boot-templates_')
-        ZerobootRacktivityHost.template_uid = TemplateUID.parse(
-            'github.com/zero-os/0-boot-templates/%s/%s' % (
-                ZerobootRacktivityHost.template_name, ZerobootRacktivityHost.version))
-
+        super().preTest(os.path.dirname(__file__), ZerobootRacktivityHost)
         cls._valid_data = {
             'zerobootClient': 'zboot1-zb',
             'racktivityClient': 'zboot1-rack',
@@ -32,11 +23,6 @@ class TestZerobootRacktivityHostTemplate(TestCase):
             'ipxeUrl': 'some.ixpe.url',
             'racktivityPort': 123456,
         }
-
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
 
     @mock.patch.object(j.clients, '_racktivity')
     @mock.patch.object(j.clients, '_zboot')

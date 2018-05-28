@@ -1,27 +1,18 @@
 import os
 import pytest
-import tempfile
-import shutil
-from unittest import TestCase
 from unittest import mock
 from unittest.mock import MagicMock
 
 from js9 import j
-from zerorobot import config, template_collection
-from zerorobot.template_uid import TemplateUID
 from zerorobot.template.state import StateCheckError
 
+from JumpScale9Zrobot.test.utils import ZrobotBaseTest
 from zeroboot_ipmi_host import ZerobootIpmiHost
 
-class TestZerobootIpmiHostTemplate(TestCase):
+class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
     @classmethod
     def setUpClass(cls):
-        config.DATA_DIR = '/tmp'
-        config.DATA_DIR = tempfile.mkdtemp(prefix='0-boot-templates_')
-        ZerobootIpmiHost.template_uid = TemplateUID.parse(
-            'github.com/zero-os/0-boot-templates/%s/%s' % (
-                ZerobootIpmiHost.template_name, ZerobootIpmiHost.version))
-
+        super().preTest(os.path.dirname(__file__), ZerobootIpmiHost)
         cls._valid_data = {
             'zerobootClient': 'zboot1-zb',
             'ipmiClient': 'zboot1-ipmi',
@@ -31,11 +22,6 @@ class TestZerobootIpmiHostTemplate(TestCase):
             'hostname': 'test-01',
             'ipxeUrl': 'some.ixpe.url',
         }
-
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.exists(config.DATA_DIR):
-            shutil.rmtree(config.DATA_DIR)
 
     @mock.patch.object(j.clients, '_ipmi')
     @mock.patch.object(j.clients, '_zboot')
