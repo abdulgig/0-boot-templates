@@ -96,7 +96,7 @@ Documentation for the template can be found [here](templates/zerotier_client/REA
 data = {
   'token': '<Your-zerotier-token-here>'
 }
-zt_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/zerotier_client/0.0.1", "zboot1-zt", data=data)
+zt_service = robot.services.create("github.com/zero-os/0-boot-templates/zerotier_client/0.0.1", "zboot1-zt", data=data)
 ```
 
 ### ssh_client
@@ -113,7 +113,7 @@ data = {
   'login': 'root',
   'password': '1234'
 }
-ssh_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/ssh_client/0.0.1", "zboot1-ssh", data=data)
+ssh_service = robot.services.create("github.com/zero-os/0-boot-templates/ssh_client/0.0.1", "zboot1-ssh", data=data)
 ```
 
 ### zeroboot_client
@@ -130,7 +130,7 @@ data = {
   'sshClient' : 'zboot1-ssh', # ssh client instance name
   'zerotierClient': 'zboot1-zt', # zerotier client instance name
 }
-zboot_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/zeroboot_client/0.0.1", "zboot1-zb", data=data)
+zboot_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_client/0.0.1", "zboot1-zb", data=data)
 ```
 
 ### racktivity_client
@@ -147,7 +147,7 @@ data = {
   'password': '1234',
   'host': '10.10.2.100',
 }
-rackt1_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/racktivity_client/0.0.1", "zboot1-rackt1", data=data)
+rackt1_service = robot.services.create("github.com/zero-os/0-boot-templates/racktivity_client/0.0.1", "zboot1-rackt1", data=data)
 ```
 
 ### ipmi_client
@@ -164,7 +164,7 @@ data = {
   "user": "ADMIN",
   "password": "1234",
 }
-ipmi-h21_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/ipmi_client/0.0.1", "zboot1-ipmi-h21", data=data)
+ipmi-h21_service = robot.services.create("github.com/zero-os/0-boot-templates/ipmi_client/0.0.1", "zboot1-ipmi-h21", data=data)
 ```
 
 ### zeroboot_racktivity_host
@@ -187,7 +187,7 @@ data = {
   'racktivityPowerModule': 'P1', # module on the racktivity device the port is on (only for racktivity SE models)
   'ipxeUrl': '<ipxe_boot_url>',
 }
-h11_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/zeroboot_racktivity_host/0.0.1", "zboot1-h11", data=data)
+h11_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_racktivity_host/0.0.1", "zboot1-h11", data=data)
 ```
 
 ### zeroboot_ipmi_host
@@ -208,7 +208,7 @@ data = {
   'ip': '10.10.2.21',
   'ipxeUrl': '<ipxe_boot_url>',
 }
-h21_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/zeroboot_ipmi_host/0.0.1", "zboot1-h21", data=data)
+h21_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_ipmi_host/0.0.1", "zboot1-h21", data=data)
 ```
 
 ### zeroboot_pool
@@ -225,7 +225,7 @@ Documentation for the template can be found [here](templates/zeroboot_pool/READM
 data = {
   'zerobootHosts': ['zboot1-h11','zboot1-h21'] # list of installed zeroboot host instances ready for reservation.
 }
-pool_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/zeroboot_pool/0.0.1", "zboot1-pool", data=data)
+pool_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_pool/0.0.1", "zboot1-pool", data=data)
 ```
 
 ### zeroboot_reservation
@@ -241,7 +241,7 @@ data = {
   'zerobootPool': 'zboot1-pool',
   'ipxeUrl': '<ipxe_boot_url>',
 }
-reservation1_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1", "zboot1-res1", data=data)
+reservation1_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1", "zboot1-res1", data=data)
 ```
 
 ## Example power management of a single host
@@ -362,7 +362,7 @@ h21_service.schedule_action("install").wait(die=True).result
 data = {
   'zerobootHosts': ['zboot1-h11','zboot1-h21']
 }
-pool_service = robot.services.get_or_create("github.com/zero-os/0-boot-templates/zeroboot_pool/0.0.1", "zboot1-pool", data=data)
+pool_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_pool/0.0.1", "zboot1-pool", data=data)
 ```
 
 ### Make a reservation
@@ -373,7 +373,7 @@ data = {
   'zerobootPool': 'zboot1-pool',
   'ipxeUrl': '<ipxe_boot_url>',
 }
-reservation_1 = robot.services.get_or_create("github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1", "zboot1-res1", data=data)
+reservation_1 = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1", "zboot1-res1", data=data)
 
 # install will reserve a host from the pool.
 # The host reserved host will be powered on by the install action.
