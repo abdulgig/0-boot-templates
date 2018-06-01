@@ -11,6 +11,7 @@ class ZerotierClient(TemplateBase):
     def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
+    def validate(self):
         # client instance already exists
         if self.name in j.clients.zerotier.list():
             return
