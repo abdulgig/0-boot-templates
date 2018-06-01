@@ -11,6 +11,9 @@ class ZerobootRacktivityHost(TemplateBase):
     def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
         self.__zeroboot = None
+        self.__network = None
+        self.__racktivity = None
+        self.__host = None
 
     @property
     def _zeroboot(self):
@@ -30,7 +33,9 @@ class ZerobootRacktivityHost(TemplateBase):
         Returns:
             RacktivityClient -- racktivity JS client
         """
-        return j.clients.racktivity.get(self.data['racktivityClient'], interactive=False)
+        if not self.__racktivity:
+            self.__racktivity =  j.clients.racktivity.get(self.data['racktivityClient'], interactive=False)
+        return self.__racktivity
 
     @property
     def _powermodule_id(self):
@@ -53,7 +58,10 @@ class ZerobootRacktivityHost(TemplateBase):
         Returns:
             ZerobootClient.Network -- Zeroboot network
         """
-        return self._zeroboot.networks.get(self.data['network'])
+        if not self.__network:
+            self.__network =  self._zeroboot.networks.get(self.data['network'])
+
+        return self.__network
 
     @property
     def _host(self):
@@ -62,7 +70,10 @@ class ZerobootRacktivityHost(TemplateBase):
         Returns:
             ZerobootClient.Host -- Zeroboot Host
         """
-        return self._network.hosts.get(self.data['hostname'])
+        if not self.__host:
+             self.__host = self._network.hosts.get(self.data['hostname'])
+
+        return  self.__host
 
     def validate(self):
         for key in ['zerobootClient', 'racktivityClient', 'mac', 'ip', 'network', 'hostname', 'racktivityPort']:

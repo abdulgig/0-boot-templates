@@ -11,6 +11,11 @@ class ZerobootIpmiHost(TemplateBase):
     def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
+        self.__zeroboot = None
+        self.___network = None
+        self.__ipmi = None
+        self.__host = None
+
     @property
     def _zeroboot(self):
         """ Returns zeroboot client
@@ -18,7 +23,10 @@ class ZerobootIpmiHost(TemplateBase):
         Returns:
             ZerobootClient -- zeroboot JS client
         """
-        return j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
+        if not self.__zeroboot:
+            self.__zeroboot = j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
+
+        return self.__zeroboot
 
     @property
     def _network(self):
@@ -27,7 +35,10 @@ class ZerobootIpmiHost(TemplateBase):
         Returns:
             ZerobootClient.Network -- Zeroboot network
         """
-        return self._zeroboot.networks.get(self.data['network'])
+        if not self.___network:
+            self.___network = self._zeroboot.networks.get(self.data['network'])
+
+        return self.___network
 
     @property
     def _ipmi(self):
@@ -36,7 +47,9 @@ class ZerobootIpmiHost(TemplateBase):
         Returns:
             IpmiClient -- ipmi JS client
         """
-        return j.clients.ipmi.get(self.data['ipmiClient'], interactive=False)
+        if not self.__ipmi:
+            self.__ipmi = j.clients.ipmi.get(self.data['ipmiClient'], interactive=False)
+        return self.__ipmi
 
     @property
     def _host(self):
@@ -45,7 +58,10 @@ class ZerobootIpmiHost(TemplateBase):
         Returns:
             ZerobootClient.Host -- Zeroboot Host
         """
-        return self._network.hosts.get(self.data['hostname'])
+        if not self.__host:
+            self.__host = self._network.hosts.get(self.data['hostname'])
+
+        return self.__host
 
     def validate(self):
         for key in ['zerobootClient', 'ipmiClient', 'ipmiClient', 'mac', 'ip', 'network', 'hostname']:

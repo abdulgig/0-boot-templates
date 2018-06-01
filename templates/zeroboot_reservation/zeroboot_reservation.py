@@ -12,6 +12,9 @@ class ZerobootReservation(TemplateBase):
     def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
+        self.__pool = None
+        self.__host = None
+
     @property
     def _pool(self):
         """ Returns pool service
@@ -19,7 +22,10 @@ class ZerobootReservation(TemplateBase):
         Returns:
             ServiceProxy -- zeroboot pool service
         """
-        return self.api.services.get(name=self.data['zerobootPool'])
+        if not self.__pool:
+            self.__pool = self.api.services.get(name=self.data['zerobootPool'])
+
+        return self.__pool
 
     @property
     def _host(self):
@@ -28,7 +34,10 @@ class ZerobootReservation(TemplateBase):
         Returns:
             ServiceProxy -- host service
         """
-        return self.api.services.get(name=self.data['zerobootHost'])
+        if not self.__host:
+            self.__host = self.api.services.get(name=self.data['zerobootHost'])
+
+        return self.__host
 
     def validate(self):
         for key in ['zerobootPool', 'ipxeUrl']:

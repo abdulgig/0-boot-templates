@@ -21,19 +21,23 @@ class TestZerotierClientTemplate(ZrobotBaseTest):
 
     def test_create_data_none(self):
         with pytest.raises(ValueError, message='template should fail to instantiate if data is None'):
-            ZerotierClient(name="zttest", data=None)
+            zt_cl = ZerotierClient(name="zttest", data=None)
+            zt_cl.validate()
 
     def test_create_data_no_token(self):
         with pytest.raises(ValueError, message="template should fail to instantiate if data doesn't contain 'token'"):
-            ZerotierClient(name="zttest", data={'foo': 'bar'})
+            zt_cl = ZerotierClient(name="zttest", data={'foo': 'bar'})
+            zt_cl.validate()
 
         with pytest.raises(ValueError, message="template should fail to instantiate if data doesn't contain 'token'"):
-            ZerotierClient(name="zttest", data={'token': ''})
+            zt_cl = ZerotierClient(name="zttest", data={'token': ''})
+            zt_cl.validate()
 
     def test_create(self):
         get = patch('js9.j.clients.zerotier.get', MagicMock()).start()
         data = {'token': 'foo'}
-        ZerotierClient(name="zttest", data=data)
+        zt_cl = ZerotierClient(name="zttest", data=data)
+        zt_cl.validate()
 
         self.list.assert_called_with()
         get.assert_called_with("zttest", data={'token_': data['token']})
