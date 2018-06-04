@@ -107,6 +107,16 @@ class ZerobootRacktivityHost(TemplateBase):
         # remove host from zeroboot
         self._network.hosts.remove(self.data['hostname'])
         self.state.delete('actions', 'install')
+
+    def host(self):
+        """ Returns the hostname of the node
+        
+        Returns:
+            str -- hostname
+        """
+        self.state.check('actions', 'install', 'ok')
+
+        return self.data['hostname']
     
     def power_on(self):
         """ Powers on host

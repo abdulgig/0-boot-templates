@@ -85,7 +85,7 @@ class ZerobootReservation(TemplateBase):
         """
         self.state.check('actions', 'install', 'ok')
 
-        return self.data['zerobootHost']
+        return self._host.schedule_action('host').wait(die=True).result
 
     def power_on(self):
         """ Powers on the reserved host
