@@ -87,6 +87,16 @@ class ZerobootReservation(TemplateBase):
 
         return self._host.schedule_action('host').wait(die=True).result
 
+    def ip(self):
+        """Returns the ip of the reserved host
+        
+        Returns:
+            str -- ip address of the reserved host
+        """
+        self.state.check('actions', 'install', 'ok')
+
+        return self._host.schedule_action('ip').wait(die=True).result
+
     def power_on(self):
         """ Powers on the reserved host
         """

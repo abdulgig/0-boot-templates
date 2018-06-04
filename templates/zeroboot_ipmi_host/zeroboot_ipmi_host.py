@@ -105,6 +105,16 @@ class ZerobootIpmiHost(TemplateBase):
         self.state.check('actions', 'install', 'ok')
 
         return self.data['hostname']
+
+    def ip(self):
+        """ Returns the ip address of the node
+        
+        Returns:
+            str -- ip address
+        """
+        self.state.check('actions', 'install', 'ok')
+
+        return self.data['ip']
     
     def power_on(self):
         """ Powers on host
