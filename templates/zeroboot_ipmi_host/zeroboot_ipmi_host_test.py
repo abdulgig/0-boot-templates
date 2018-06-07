@@ -20,7 +20,7 @@ class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
             'ip': '10.10.1.1',
             'network': '10.10.1.0/24',
             'hostname': 'test-01',
-            'ipxeUrl': 'some.ixpe.url',
+            'lkrnUrl': 'some.ixpe.url',
         }
 
     @mock.patch.object(j.clients, '_ipmi')
@@ -45,7 +45,7 @@ class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
                     'ip': '10.10.1.1',
                     'network': '10.10.1.0/24',
                     'hostname': 'test-01',
-                    'ipxeUrl': 'some.ixpe.url',
+                    'lkrnUrl': 'some.ixpe.url',
                 },
                 'message': "Should fail: missing zerobootClient",
                 'missing': 'zerobootClient',
@@ -57,7 +57,7 @@ class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
                     'ip': '10.10.1.1',
                     'network': '10.10.1.0/24',
                     'hostname': 'test-01',
-                    'ipxeUrl': 'some.ixpe.url',
+                    'lkrnUrl': 'some.ixpe.url',
                 },
                 'message': "Should fail: missing ipmiClient",
                 'missing': 'ipmiClient',
@@ -69,7 +69,7 @@ class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
                     'mac': 'well:this:a:weird:mac:address',
                     'ip': '10.10.1.1',
                     'hostname': 'test-01',
-                    'ipxeUrl': 'some.ixpe.url',
+                    'lkrnUrl': 'some.ixpe.url',
                 },
                 'message': "Should fail: missing network",
                 'missing': 'network',
@@ -81,7 +81,7 @@ class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
                     'mac': 'well:this:a:weird:mac:address',
                     'ip': '10.10.1.1',
                     'network': '10.10.1.0/24',
-                    'ipxeUrl': 'some.ixpe.url',
+                    'lkrnUrl': 'some.ixpe.url',
                 },
                 'message': "Should fail: missing hostname",
                 'missing': 'hostname',
@@ -93,7 +93,7 @@ class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
                     'ip': '10.10.1.1',
                     'network': '10.10.1.0/24',
                     'hostname': 'test-01',
-                    'ipxeUrl': 'some.ixpe.url',
+                    'lkrnUrl': 'some.ixpe.url',
                 },
                 'message': "Should fail: missing mac address",
                 'missing': 'mac',
@@ -161,7 +161,7 @@ class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
 
         instance._network.hosts.add.assert_called_with(
             self._valid_data['mac'], self._valid_data['ip'], self._valid_data['hostname'])
-        instance._host.configure_ipxe_boot.assert_called_with(self._valid_data['ipxeUrl'])
+        instance._host.configure_ipxe_boot.assert_called_with(self._valid_data['lkrnUrl'])
 
         # state check should pass
         instance.state.check('actions', 'install', 'ok')
@@ -316,11 +316,11 @@ class TestZerobootIpmiHostTemplate(ZrobotBaseTest):
         instance.state.set('actions', 'install', 'ok')
 
         # call with same ipxe URL as set in data
-        instance.configure_ipxe_boot(self._valid_data["ipxeUrl"])
+        instance.configure_ipxe_boot(self._valid_data["lkrnUrl"])
         instance._host.configure_ipxe_boot.assert_not_called()
 
         # call with difference ipxe URL as set in data
         instance.configure_ipxe_boot(boot_url)
         instance._host.configure_ipxe_boot.assert_called_with(boot_url)
 
-        assert instance.data["ipxeUrl"] == boot_url
+        assert instance.data["lkrnUrl"] == boot_url

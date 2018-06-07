@@ -7,6 +7,6 @@ struct Schema {
     mac @3: Text; # Target mac address
     ip @4: Text; # Target IP address
     hostname @5: Text; # Hostname of target
-    ipxeUrl @6: Text; # URL to ipxe script
+    lkrnUrl @6: Text; # URL to LKRN file for IPXE boot
     powerState @7: Bool; # Internally saved powerstate
 }

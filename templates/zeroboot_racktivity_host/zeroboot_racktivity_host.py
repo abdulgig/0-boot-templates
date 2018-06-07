@@ -97,8 +97,8 @@ class ZerobootRacktivityHost(TemplateBase):
         else:
             self._network.hosts.add(self.data['mac'], self.data['ip'], self.data['hostname'])
 
-        if self.data.get('ipxeUrl'):
-            self._host.configure_ipxe_boot(self.data['ipxeUrl'])
+        if self.data.get('lkrnUrl'):
+            self._host.configure_ipxe_boot(self.data['lkrnUrl'])
 
         self.state.set('actions', 'install', 'ok')
         self.data['powerState'] = self.power_status()
@@ -178,19 +178,16 @@ class ZerobootRacktivityHost(TemplateBase):
                 self.logger.debug('powering off host to match internally saved power state')
                 self.power_off()
 
-    def configure_ipxe_boot(self, boot_url):
+    def configure_ipxe_boot(self, lkrn_url):
         """ Configure the IPXE boot settings of the host
         
         Arguments:
-            boot_url str -- url to boot from includes zerotier network id ex: http://unsecure.bootstrap.gig.tech/ipxe/zero-os-master/a84ac5c10a670ca3
-        
-        Keyword Arguments:
-            tftp_root str -- tftp root location where pxe config are stored (default: '/opt/storage')
+            lkrn_url str -- URL that points to a LKRN file to boot from that includes boot parameters. E.g.: https://bootstrap.gig.tech/krn/master/0/
         """
         self.state.check('actions', 'install', 'ok')
 
-        if boot_url == self.data['ipxeUrl']:
+        if lkrn_url == self.data['lkrnUrl']:
             return
 
-        self._host.configure_ipxe_boot(boot_url)
-        self.data['ipxeUrl'] = boot_url
+        self._host.configure_ipxe_boot(lkrn_url)
+        self.data['lkrnUrl'] = lkrn_url
