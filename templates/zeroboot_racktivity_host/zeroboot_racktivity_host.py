@@ -91,9 +91,9 @@ class ZerobootRacktivityHost(TemplateBase):
         # add host to zeroboot
         if self.data['hostname'] in self._network.hosts.list():
             if self.data['mac'] != self._host.mac:
-                raise RuntimeError("Host was found in the network but mac address did not match")
+                raise RuntimeError("Host was found in the network but mac address did not match (Found: '%s', configured: '%s')" % (self._host.mac, self.data['mac']))
             if self.data['ip'] != self._host.address:
-                raise RuntimeError("Host was found in the network but ip address did not match")
+                raise RuntimeError("Host was found in the network but ip address did not match (Found: '%s', configured: '%s')" % (self._host.address, self.data['ip']))
         else:
             self._network.hosts.add(self.data['mac'], self.data['ip'], self.data['hostname'])
 
