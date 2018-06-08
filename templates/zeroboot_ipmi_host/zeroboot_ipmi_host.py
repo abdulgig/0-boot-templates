@@ -174,7 +174,7 @@ class ZerobootIpmiHost(TemplateBase):
                 self.logger.debug('powering off host to match internally saved power state')
                 self.power_off()
 
-    def configure_ipxe_boot(self, lkr_url):
+    def configure_ipxe_boot(self, lkrn_url):
         """ Configure the IPXE boot settings of the host
         
         Arguments:
@@ -182,9 +182,9 @@ class ZerobootIpmiHost(TemplateBase):
         """
         self.state.check('actions', 'install', 'ok')
 
-        if lkr_url == self.data.get('lkrnUrl'):
+        if lkrn_url == self.data.get('lkrnUrl'):
             self.logger.debug("provided booturl was the same as last set.")
             return
 
-        self._host.configure_ipxe_boot(lkr_url)
-        self.data['lkrnUrl'] = lkr_url
+        self._host.configure_ipxe_boot(lkrn_url)
+        self.data['lkrnUrl'] = lkrn_url
