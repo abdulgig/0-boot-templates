@@ -13,7 +13,7 @@ class TestZerobootReservationTemplate(ZrobotBaseTest):
     def setUpClass(cls):
         super().preTest(os.path.dirname(__file__), ZerobootReservation)
 
-        cls._valid_data = {"zerobootPool": "pool1", "ipxeUrl": "some-url"}
+        cls._valid_data = {"zerobootPool": "pool1", "lkrnUrl": "some-url"}
 
     def test_validation(self):
         reservation = ZerobootReservation(name="test", data=self._valid_data)
@@ -28,15 +28,15 @@ class TestZerobootReservationTemplate(ZrobotBaseTest):
         reservation = ZerobootReservation(name="test", data=data)
         reservation.api = MagicMock()
 
-        # missing ipxeUrl
-        with pytest.raises(ValueError, message="Should fail due to missing ipxeUrl") as exinfo:
+        # missing lkrnUrl
+        with pytest.raises(ValueError, message="Should fail due to missing lkrnUrl") as exinfo:
             reservation.validate()
-        if not "ipxeUrl" in str(exinfo):
-            pytest.fail("Validation failed but did not contain missing data 'ipxeUrl': %s" % exinfo)
+        if not "lkrnUrl" in str(exinfo):
+            pytest.fail("Validation failed but did not contain missing data 'lkrnUrl': %s" % exinfo)
 
         # missing pool 
         reservation.data = {
-            "ipxeUrl": "some-url",
+            "lkrnUrl": "some-url",
         }
 
         with pytest.raises(ValueError, message="Should fail due to missing zerobootPool") as exinfo:
@@ -47,7 +47,7 @@ class TestZerobootReservationTemplate(ZrobotBaseTest):
     def test_validation_zeroboot_host(self):
         # provide zeroboot host before installing
         data = {
-            "ipxeUrl": "some-url",
+            "lkrnUrl": "some-url",
             "zerobootPool": "pool1",
             "zerobootHost": "host-foo",
         }
@@ -62,7 +62,7 @@ class TestZerobootReservationTemplate(ZrobotBaseTest):
         # no zeroboot host after installing
         reservation.state.set("actions", "install", "ok")
         reservation.data = {
-            "ipxeUrl": "some-url",
+            "lkrnUrl": "some-url",
             "zerobootPool": "pool1",
         }
         with pytest.raises(ValueError, message="Should fail due to provided missing zerobootHost after installing") as exinfo:

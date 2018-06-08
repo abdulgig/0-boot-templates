@@ -40,7 +40,7 @@ class ZerobootReservation(TemplateBase):
         return self.__host
 
     def validate(self):
-        for key in ['zerobootPool', 'ipxeUrl']:
+        for key in ['zerobootPool', 'lkrnUrl']:
             if not self.data.get(key):
                 raise ValueError("data key '%s' not specified." % key)
 
@@ -62,7 +62,7 @@ class ZerobootReservation(TemplateBase):
         self.data["zerobootHost"] = self._pool.schedule_action("unreserved_host", args={'caller_guid': self.guid}).wait(die=True).result
 
         # configure ipxe
-        self._host.schedule_action('configure_ipxe_boot', args={'boot_url': self.data['ipxeUrl']}).wait(die=True)
+        self._host.schedule_action('configure_ipxe_boot', args={'boot_url': self.data['lkrnUrl']}).wait(die=True)
         self._host.schedule_action('power_cycle').wait(die=True)
 
         self.state.set('actions', 'install', 'ok')
