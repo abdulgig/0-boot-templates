@@ -101,3 +101,12 @@ class ZerobootPool(TemplateBase):
             if not zbh in reserved_hosts:
                 return zbh
         raise ValueError("No free hosts available")
+
+    def pool_hosts(self):
+        """ Returns the hosts in the pool
+        
+        Returns:
+            [str] -- A list of strings that contains the hosts in the pool
+        """
+
+        return self.data['zerobootHosts']
