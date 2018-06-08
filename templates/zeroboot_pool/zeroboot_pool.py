@@ -95,9 +95,10 @@ class ZerobootPool(TemplateBase):
                 continue
 
             # add to reserved list
-            reserved_hosts.append(reservation.schedule_action('host').wait(die=True).result)
+            reserved_hosts.append(reservation.schedule_action('host_instance').wait(die=True).result)
 
         for zbh in self.data['zerobootHosts']:
+            # get the service of the instance and retrieve the host from that
             if not zbh in reserved_hosts:
                 return zbh
         raise ValueError("No free hosts available")

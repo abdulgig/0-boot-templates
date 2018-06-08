@@ -49,15 +49,15 @@ class TestZerobootReservationTemplate(ZrobotBaseTest):
         data = {
             "lkrnUrl": "some-url",
             "zerobootPool": "pool1",
-            "zerobootHost": "host-foo",
+            "hostInstance": "host-foo",
         }
         reservation = ZerobootReservation(name="test", data=data)
         reservation.api = MagicMock()
 
-        with pytest.raises(ValueError, message="Should fail due to provided zerobootHost before installing") as exinfo:
+        with pytest.raises(ValueError, message="Should fail due to provided hostInstance before installing") as exinfo:
             reservation.validate()
-        if not "zerobootHost" in str(exinfo):
-            pytest.fail("Expected an error but received error was not for 'zerobootHost': %s" % exinfo)
+        if not "hostInstance" in str(exinfo):
+            pytest.fail("Expected an error but received error was not for 'hostInstance': %s" % exinfo)
 
         # no zeroboot host after installing
         reservation.state.set("actions", "install", "ok")
@@ -65,10 +65,10 @@ class TestZerobootReservationTemplate(ZrobotBaseTest):
             "lkrnUrl": "some-url",
             "zerobootPool": "pool1",
         }
-        with pytest.raises(ValueError, message="Should fail due to provided missing zerobootHost after installing") as exinfo:
+        with pytest.raises(ValueError, message="Should fail due to provided missing hostInstance after installing") as exinfo:
             reservation.validate()
-        if not "zerobootHost" in str(exinfo):
-            pytest.fail("Expected an error but received error was not for 'zerobootHost': %s" % exinfo)
+        if not "hostInstance" in str(exinfo):
+            pytest.fail("Expected an error but received error was not for 'hostInstance': %s" % exinfo)
 
     def test_install(self):
         reservation = ZerobootReservation(name="test", data=self._valid_data)
@@ -101,9 +101,9 @@ class TestZerobootReservationTemplate(ZrobotBaseTest):
         # check power off called
         reservation.api.services.get().schedule_action.assert_called_with("power_off")
 
-        # check 'zerobootHost' cleared
-        if reservation.data.get('zerobootHost'):
-            pytest.fail("'zerobootHost' should be cleared after uninstall")
+        # check 'hostInstance' cleared
+        if reservation.data.get('hostInstance'):
+            pytest.fail("'hostInstance' should be cleared after uninstall")
 
         # check action install state
         with pytest.raises(StateCheckError, message="reservation service should now be uninstalled"):

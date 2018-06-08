@@ -35,7 +35,7 @@ class ZerobootReservation(TemplateBase):
             ServiceProxy -- host service
         """
         if not self.__host:
-            self.__host = self.api.services.get(name=self.data['zerobootHost'])
+            self.__host = self.api.services.get(name=self.data['hostInstance'])
 
         return self.__host
 
@@ -44,14 +44,14 @@ class ZerobootReservation(TemplateBase):
             if not self.data.get(key):
                 raise ValueError("data key '%s' not specified." % key)
 
-        # zerobootHost can only be set when installed
+        # hostInstance can only be set when installed
         try:
             self.state.check('actions', 'install', 'ok')
-            if not self.data.get('zerobootHost'):
-                raise ValueError("zerobootHost is not set while installed")
+            if not self.data.get('hostInstance'):
+                raise ValueError("hostInstance is not set while installed")
         except StateCheckError:
-            if self.data.get('zerobootHost'):
-                raise ValueError("zerobootHost can not only be set when installed")
+            if self.data.get('hostInstance'):
+                raise ValueError("hostInstance can not only be set when installed")
 
     def install(self):
         """ Install the reservation
@@ -59,7 +59,7 @@ class ZerobootReservation(TemplateBase):
         Fetches a free host from the pool and reserves it.
         Powers on the host
         """
-        self.data["zerobootHost"] = self._pool.schedule_action("unreserved_host", args={'caller_guid': self.guid}).wait(die=True).result
+        self.data["hostInstance"] = self._pool.schedule_action("unreserved_host", args={'caller_guid': self.guid}).wait(die=True).result
 
         # configure ipxe
         self._host.schedule_action('configure_ipxe_boot', args={'lkrn_url': self.data['lkrnUrl']}).wait(die=True)
@@ -73,7 +73,7 @@ class ZerobootReservation(TemplateBase):
         Powers off the host and releases the lease on the host.
         """
         self.power_off()
-        self.data["zerobootHost"] = None
+        self.data["hostInstance"] = None
 
         self.state.delete('actions', 'install')
 
@@ -86,6 +86,16 @@ class ZerobootReservation(TemplateBase):
         self.state.check('actions', 'install', 'ok')
 
         return self._host.schedule_action('host').wait(die=True).result
+
+    def host_instance(self):
+        """ Returns the instance name of the reserved host service
+        
+        Returns:
+            str -- Instance name of the host service
+        """
+        self.state.check('actions', 'install', 'ok')
+
+        return self.data.get('hostInstance')
 
     def ip(self):
         """Returns the ip of the reserved host
