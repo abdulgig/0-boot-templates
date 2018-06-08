@@ -10,7 +10,6 @@ class ZerobootRacktivityHost(TemplateBase):
 
     def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
-        self.__zeroboot = None
         self.__network = None
         self.__racktivity = None
         self.__host = None
@@ -22,9 +21,7 @@ class ZerobootRacktivityHost(TemplateBase):
         Returns:
             ZerobootClient -- zeroboot JS client
         """
-        if not self.__zeroboot:
-            self.__zeroboot = j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
-        return self.__zeroboot
+        return j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
     
     @property
     def _racktivity(self):

@@ -11,7 +11,6 @@ class ZerobootIpmiHost(TemplateBase):
     def __init__(self, name=None, guid=None, data=None):
         super().__init__(name=name, guid=guid, data=data)
 
-        self.__zeroboot = None
         self.___network = None
         self.__ipmi = None
         self.__host = None
@@ -23,10 +22,7 @@ class ZerobootIpmiHost(TemplateBase):
         Returns:
             ZerobootClient -- zeroboot JS client
         """
-        if not self.__zeroboot:
-            self.__zeroboot = j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
-
-        return self.__zeroboot
+        return j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
 
     @property
     def _network(self):
@@ -64,7 +60,7 @@ class ZerobootIpmiHost(TemplateBase):
         return self.__host
 
     def validate(self):
-        for key in ['zerobootClient', 'ipmiClient', 'ipmiClient', 'mac', 'ip', 'network', 'hostname']:
+        for key in ('zerobootClient', 'ipmiClient', 'mac', 'ip', 'network', 'hostname'):
             if not self.data.get(key):
                 raise ValueError("data key '%s' not specified." % key)
 
@@ -78,11 +74,13 @@ class ZerobootIpmiHost(TemplateBase):
     def install(self):
         # add host to zeroboot
         if self.data['hostname'] in self._network.hosts.list():
+            self.logger.info("hostname was foun in networks")
             if self.data['mac'] != self._host.mac:
                 raise RuntimeError("Host was found in the network but mac address did not match (Found: '%s', configured: '%s')" % (self._host.mac, self.data['mac']))
             if self.data['ip'] != self._host.address:
                 raise RuntimeError("Host was found in the network but ip address did not match (Found: '%s', configured: '%s')" % (self._host.address, self.data['ip']))
         else:
+            self.logger.info("adding host to network")
             self._network.hosts.add(self.data['mac'], self.data['ip'], self.data['hostname'])
 
         if self.data.get('lkrnUrl'):
