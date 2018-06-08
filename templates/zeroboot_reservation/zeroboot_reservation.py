@@ -136,14 +136,14 @@ class ZerobootReservation(TemplateBase):
 
         return self._host.schedule_action('monitor').wait(die=True).result
 
-    def configure_ipxe_boot(self, boot_url):
-        """ Sets the ipxe boot url of the host
+    def configure_ipxe_boot(self, lkrn_url):
+        """ Sets the ipxe script of the host
 
         May need a power_cycle to boot from the url.
         
         Arguments:
-            boot_url str -- URL of the ipxe boot script
+            lkrn_url str -- URL of the LRKN boot script
         """
         self.state.check('actions', 'install', 'ok')
 
-        self._host.schedule_action('configure_ipxe_boot', args={'boot_url': boot_url}).wait(die=True)
+        self._host.schedule_action('configure_ipxe_boot', args={'lkrn_url': lkrn_url}).wait(die=True)
