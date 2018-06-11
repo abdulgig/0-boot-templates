@@ -14,7 +14,9 @@ It also acts as a proxy for the zeroboot host.
 
 - install: Fetches an available host from the pool and marks it as reserved. Also tries to power on the host
 - uninstall: powers off the host and marks the host as available again.
-- host: returns the hostname of the reservation
+- host: returns the hostname of the host of the reservation
+- host_instance: returns the instance name of service of the host
+- ip: returns the local ip of the host
 - power_on: proxy to the zeroboot host to power on the host
 - power_off: proxy to the zeroboot host to power off the host
 - power_cycle: proxy to the zeroboot host to power cycle the host
