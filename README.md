@@ -185,7 +185,7 @@ data = {
   'hostname': 'host-11',
   'racktivityPort': 6,  # port on the racktivity device the host is connected to.
   'racktivityPowerModule': 'P1', # module on the racktivity device the port is on (only for racktivity SE models)
-  'ipxeUrl': '<ipxe_boot_url>',
+  'lkrnUrl': '<ipxe_LKRN_file_url>',
 }
 h11_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_racktivity_host/0.0.1", "zboot1-h11", data=data)
 ```
@@ -206,7 +206,7 @@ data = {
   'hostname': 'host-21',
   'mac': '48-24-ae-3b-80-cc',
   'ip': '10.10.2.21',
-  'ipxeUrl': '<ipxe_boot_url>',
+  'lkrnUrl': '<ipxe_LKRN_file_url>',
 }
 h21_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_ipmi_host/0.0.1", "zboot1-h21", data=data)
 ```
@@ -239,7 +239,7 @@ Documentation for the template can be found [here](templates/zeroboot_reservatio
 ```py
 data = {
   'zerobootPool': 'zboot1-pool',
-  'ipxeUrl': '<ipxe_boot_url>',
+  'lkrnUrl': '<ipxe_LKRN_file_url>',
 }
 reservation1_service = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1", "zboot1-res1", data=data)
 ```
@@ -371,7 +371,7 @@ pool_service = robot.services.create("github.com/zero-os/0-boot-templates/zerobo
 # create a reservation service
 data = {
   'zerobootPool': 'zboot1-pool',
-  'ipxeUrl': '<ipxe_boot_url>',
+  'lkrnUrl': '<ipxe_LKRN_file_url>',
 }
 reservation_1 = robot.services.create("github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1", "zboot1-res1", data=data)
 
