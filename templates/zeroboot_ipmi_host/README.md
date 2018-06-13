@@ -13,7 +13,7 @@ Through this template, one can manage the power state and boot configuration of 
 - mac: Target mac address
 - ip: Target IP address
 - hostname: Target hostname
-- ipxeUrl: URL to ipxe script, if provided, it will be set on install
+- lkrnUrl: URL to LKRN file, if provided, it will be set on install
 
 ### Actions:
 
@@ -27,4 +27,4 @@ Through this template, one can manage the power state and boot configuration of 
 - power_status: Returns the power status of the host (`True` if on, `False` if off)
 - monitor: Checks if the power status matches the one of the internally saved state. On install the internal state will be fetched using `power_status`, then will be updated by the actions `power_on` and `power_off`.  
 If the last action before calling `monitor` was `power_on` but the current state of the host is `False`(off), it will turn the  power to the host back on.
-- configure_ipxe_boot: Set the ipxe boot configuration (calling `power_cycle` is needed to use the new boot configuration).
+- configure_ipxe_boot: Set the ipxe boot configuration with provided LKRN URL (calling `power_cycle` is needed to use the new boot configuration).

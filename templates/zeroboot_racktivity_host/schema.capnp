@@ -7,7 +7,7 @@ struct Schema {
     mac @3: Text; # Target mac address
     ip @4: Text; # Target IP address
     hostname @5: Text; # Hostname of target
-    lkrnUrl @6: Text; # URL to ipxe script
+    lkrnUrl @6: Text; # URL to LKRN file with ipxe boot configuration
     racktivityPort @7: Int32; # Target's port on the Racktivity device
     racktivityPowerModule @8: Text; # Racktivity module ID (only Racktivity for SE models)
     powerState @9: Bool; # Internally saved powerstate
