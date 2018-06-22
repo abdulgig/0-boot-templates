@@ -8,14 +8,15 @@ Through this template, one can manage the power state and boot configuration of 
 ### Schema:
 
 - zerobootClient: zeroboot Jumpscale client instance name
-- racktivityClient: racktivity Jumpscale client instance name
+- racktivities: Racktivity devices settings
+    - client: Racktivity service/client instance name
+    - port: Target's port on the Racktivity device
+    - powermodule: Racktivity module ID (only Racktivity for SE models)
 - network: Zeroboot network that contains the host
 - mac: Target mac address
 - ip: Target IP address
 - hostname: Target hostname
 - lkrnUrl: URL to LKRN file, if provided, it will be set on install
-- racktivityPort: Target's port on the Racktivity device
-- racktivityPowerModule: Racktivity module ID (only Racktivity for SE models)
 
 ### Actions:
 
