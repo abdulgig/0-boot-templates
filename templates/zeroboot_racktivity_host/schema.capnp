@@ -14,5 +14,5 @@ struct Schema {
 struct Racktivity {
     client @0: Text; # Racktivity service/client instance name
     port @1: Text; # Target's port on the Racktivity device
-    powermodule @8: Text; # Racktivity module ID (only Racktivity for SE models)
+    powermodule @2: Text; # Racktivity module ID (only Racktivity for SE models)
 }
