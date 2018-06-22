@@ -15,20 +15,45 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
         super().preTest(os.path.dirname(__file__), ZerobootRacktivityHost)
         cls._valid_data = {
             'zerobootClient': 'zboot1-zb',
-            'racktivityClient': 'zboot1-rack',
+            'racktivities': [
+                {
+                'client': 'zboot1-rack',
+                'port': 6,
+                'powermodule': 'P1',
+                },
+                {
+                'client': 'zboot1-rack',
+                'port': 7,
+                'powermodule': 'P1',
+                },
+            ],
             'mac': 'well:this:a:weird:mac:address',
             'ip': '10.10.1.1',
             'network': '10.10.1.0/24',
             'hostname': 'test-01',
             'lkrnUrl': 'some.ixpe.url',
-            'racktivityPort': 123456,
         }
+
+    @property
+    def _rack_clients(self):
+        """ Returns the racktivity clients defined in self._valid_data
+
+        used for mocking
+        
+        Returns:
+            [string] -- List of Rackitivity clients in self._valid_data
+        """
+        racktivity_clients = []
+        for d in self._valid_data['racktivities']:
+            racktivity_clients.append(d['client'])
+
+        return racktivity_clients
 
     @mock.patch.object(j.clients, '_racktivity')
     @mock.patch.object(j.clients, '_zboot')
     def test_validation_valid_data(self, zboot, rack):
         zboot.list = MagicMock(return_value=[self._valid_data['zerobootClient']])
-        rack.list = MagicMock(return_value=[self._valid_data['racktivityClient']])
+        rack.list = MagicMock(return_value=self._rack_clients)
 
         _ = ZerobootRacktivityHost(name="test", data=self._valid_data)
 
@@ -36,18 +61,28 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
     @mock.patch.object(j.clients, '_zboot')
     def test_validation_required_fields(self, zboot, rack):
         zboot.list = MagicMock(return_value=[self._valid_data['zerobootClient']])
-        rack.list = MagicMock(return_value=[self._valid_data['racktivityClient']])
+        rack.list = MagicMock(return_value=self._rack_clients)
 
         test_cases = [
             {
                 'data': {
-                    'racktivityClient': 'zboot1-rack',
+                    'racktivities': [
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 6,
+                        'powermodule': 'P1',
+                        },
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 7,
+                        'powermodule': 'P1',
+                        },
+                    ],
                     'mac': 'well:this:a:weird:mac:address',
                     'ip': '10.10.1.1',
                     'network': '10.10.1.0/24',
                     'hostname': 'test-01',
                     'lkrnUrl': 'some.ixpe.url',
-                    'racktivityPort': 1,
                 },
                 'message': "Should fail: missing zerobootClient",
                 'missing': 'zerobootClient',
@@ -60,20 +95,29 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
                     'network': '10.10.1.0/24',
                     'hostname': 'test-01',
                     'lkrnUrl': 'some.ixpe.url',
-                    'racktivityPort': 1,
                 },
-                'message': "Should fail: missing racktivityClient",
-                'missing': 'racktivityClient',
+                'message': "Should fail: missing racktivities",
+                'missing': 'racktivities',
             },
             {
                 'data': {
                     'zerobootClient': 'zboot1-zb',
-                    'racktivityClient': 'zboot1-rack',
+                    'racktivities': [
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 6,
+                        'powermodule': 'P1',
+                        },
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 7,
+                        'powermodule': 'P1',
+                        },
+                    ],
                     'mac': 'well:this:a:weird:mac:address',
                     'ip': '10.10.1.1',
                     'hostname': 'test-01',
                     'lkrnUrl': 'some.ixpe.url',
-                    'racktivityPort': 1,
                 },
                 'message': "Should fail: missing network",
                 'missing': 'network',
@@ -81,12 +125,22 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
             {
                 'data': {
                     'zerobootClient': 'zboot1-zb',
-                    'racktivityClient': 'zboot1-rack',
+                    'racktivities': [
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 6,
+                        'powermodule': 'P1',
+                        },
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 7,
+                        'powermodule': 'P1',
+                        },
+                    ],
                     'mac': 'well:this:a:weird:mac:address',
                     'ip': '10.10.1.1',
                     'network': '10.10.1.0/24',
                     'lkrnUrl': 'some.ixpe.url',
-                    'racktivityPort': 1,
                 },
                 'message': "Should fail: missing hostname",
                 'missing': 'hostname',
@@ -94,25 +148,22 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
             {
                 'data': {
                     'zerobootClient': 'zboot1-zb',
-                    'racktivityClient': 'zboot1-rack',
-                    'mac': 'well:this:a:weird:mac:address',
+                    'racktivities': [
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 6,
+                        'powermodule': 'P1',
+                        },
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 7,
+                        'powermodule': 'P1',
+                        },
+                    ],
                     'ip': '10.10.1.1',
                     'network': '10.10.1.0/24',
                     'hostname': 'test-01',
                     'lkrnUrl': 'some.ixpe.url',
-                },
-                'message': "Should fail: missing racktivityPort",
-                'missing': 'racktivityPort',
-            },
-            {
-                'data': {
-                    'zerobootClient': 'zboot1-zb',
-                    'racktivityClient': 'zboot1-rack',
-                    'ip': '10.10.1.1',
-                    'network': '10.10.1.0/24',
-                    'hostname': 'test-01',
-                    'lkrnUrl': 'some.ixpe.url',
-                    'racktivityPort': 1,
                 },
                 'message': "Should fail: missing mac address",
                 'missing': 'mac',
@@ -120,11 +171,21 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
             {
                 'data': {
                     'zerobootClient': 'zboot1-zb',
-                    'racktivityClient': 'zboot1-rack',
+                    'racktivities': [
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 6,
+                        'powermodule': 'P1',
+                        },
+                        {
+                        'client': 'zboot1-rack',
+                        'port': 7,
+                        'powermodule': 'P1',
+                        },
+                    ],
                     'network': '10.10.1.0/24',
                     'mac': 'well:this:a:weird:mac:address',
                     'hostname': 'test-01',
-                    'racktivityPort': 1,
                 },
                 'message': "Should fail: missing ip address",
                 'missing': 'ip',
@@ -144,11 +205,56 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
 
     @mock.patch.object(j.clients, '_racktivity')
     @mock.patch.object(j.clients, '_zboot')
+    def test_invalid_racktivity_port(self, zboot, rack):
+        zboot.list = MagicMock(return_value=[self._valid_data['zerobootClient']])
+        rack.list = MagicMock(return_value=self._rack_clients)
+
+        data = {
+            'zerobootClient': 'zboot1-zb',
+            'racktivities': [
+                {
+                'client': 'zboot1-rack',
+                'powermodule': 'P1',
+                },
+            ],
+            'mac': 'well:this:a:weird:mac:address',
+            'ip': '10.10.1.1',
+            'network': '10.10.1.0/24',
+            'hostname': 'test-01',
+            'lkrnUrl': 'some.ixpe.url',
+        }
+        instance = ZerobootRacktivityHost(name="test", data=data)
+
+        with pytest.raises(ValueError, message="Should fail due to missing racktivity port"):
+            instance.validate()
+
+        data = {
+            'zerobootClient': 'zboot1-zb',
+            'racktivities': [
+                {
+                'client': 'zboot1-rack',
+                'port': 'FOO',
+                'powermodule': 'P1',
+                },
+            ],
+            'mac': 'well:this:a:weird:mac:address',
+            'ip': '10.10.1.1',
+            'network': '10.10.1.0/24',
+            'hostname': 'test-01',
+            'lkrnUrl': 'some.ixpe.url',
+        }
+        instance = ZerobootRacktivityHost(name="test", data=data)
+
+        with pytest.raises(ValueError, message="Should fail due to invalid racktivity port"):
+            instance.validate()
+
+    @mock.patch.object(j.clients, '_racktivity')
+    @mock.patch.object(j.clients, '_zboot')
     def test_validate_no_zboot_instance(self, zboot, rack):
         instance = ZerobootRacktivityHost(name="test", data=self._valid_data)
 
         zboot.list = MagicMock(return_value=[])
-        rack.list = MagicMock(return_value=[self._valid_data['racktivityClient']])
+        rack.list = MagicMock(return_value=self._rack_clients)
         instance.power_status = MagicMock(return_value=True)
 
         with pytest.raises(LookupError, message="zeroboot instance should not be present") as excinfo:
@@ -212,8 +318,10 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
         rack.get = MagicMock()
 
         instance.power_on()
-        zboot.get().port_power_on.assert_called_with(
-            self._valid_data['racktivityPort'], mock.ANY, None)
+
+        expected_calls = []
+        for d in reversed(self._valid_data['racktivities']):
+            expected_calls.append(zboot.get().port_power_on(d['port'], mock.ANY, d['powermodule']))
 
         # check if instance power state True
         assert instance.data['powerState']
@@ -233,8 +341,10 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
         rack.get = MagicMock()
 
         instance.power_off()
-        zboot.get().port_power_off.assert_called_with(
-            self._valid_data['racktivityPort'], mock.ANY, None)
+
+        expected_calls = []
+        for d in reversed(self._valid_data['racktivities']):
+            expected_calls.append(zboot.get().port_power_off(d['port'], mock.ANY, d['powermodule']))
 
         # check if instance power state False
         assert not instance.data['powerState']
@@ -254,8 +364,10 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
         rack.get = MagicMock()
 
         instance.power_cycle()
-        zboot.get().port_power_cycle.assert_called_with(
-            [self._valid_data['racktivityPort']], mock.ANY, None)
+
+        expected_calls = []
+        for d in reversed(self._valid_data['racktivities']):
+            expected_calls.append(zboot.get().port_power_cycle(d['port'], mock.ANY, d['powermodule']))
 
     @mock.patch.object(j.clients, '_racktivity')
     @mock.patch.object(j.clients, '_zboot')
@@ -272,8 +384,11 @@ class TestZerobootRacktivityHostTemplate(ZrobotBaseTest):
         rack.get = MagicMock()
 
         instance.power_status()
-        zboot.get().port_info.assert_called_with(
-            self._valid_data['racktivityPort'], mock.ANY, None)
+
+        expected_calls = []
+        for d in reversed(self._valid_data['racktivities']):
+            expected_calls.append(zboot.get().port_info(d['port'], mock.ANY, d['powermodule']))
+
 
     def test_monitor_not_installed(self):
         instance = ZerobootRacktivityHost(name="test", data=self._valid_data)

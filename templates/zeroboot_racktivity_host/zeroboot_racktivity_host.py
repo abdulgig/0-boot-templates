@@ -23,27 +23,22 @@ class ZerobootRacktivityHost(TemplateBase):
         return j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
     
     @property
-    def _racktivity(self):
-        """ Returns Racktivity client
+    def _racktivities(self):
+        """ Returns list of Racktivity device settings that correspond to the host
         
         Returns:
-            RacktivityClient -- racktivity JS client
+            [{'client', 'port', 'powermodule'}] -- List of racktivity device settings
         """
-        return j.clients.racktivity.get(self.data['racktivityClient'], interactive=False)
+        result = []
+        for device in self.data['racktivities']:
+            r = {}
+            r['client'] = j.clients.racktivity.get(device['client'], interactive=False)
+            r['port'] = device['port']
+            r['powermodule'] = device['powermodule']
 
-    @property
-    def _powermodule_id(self):
-        """ Returns the Racktivity power module id
-        returns None if empty.
-        
-        Returns:
-            str -- Racktivity powermodule ID
-        """
-        pm = self.data.get('racktivityPowerModule')
-        if pm and pm != "" :
-            return pm
-        else:
-            return None
+            result.append(r)
+
+        return result
 
     @property
     def _network(self):
@@ -70,7 +65,7 @@ class ZerobootRacktivityHost(TemplateBase):
         return  self.__host
 
     def validate(self):
-        for key in ['zerobootClient', 'racktivityClient', 'mac', 'ip', 'network', 'hostname', 'racktivityPort']:
+        for key in ['zerobootClient', 'racktivities', 'mac', 'ip', 'network', 'hostname']:
             if not self.data.get(key):
                 raise ValueError("data key '%s' not specified." % key)
 
@@ -78,8 +73,15 @@ class ZerobootRacktivityHost(TemplateBase):
         if self.data['zerobootClient'] not in j.clients.zboot.list():
             raise LookupError("No zboot client instance found named '%s'" % self.data['zerobootClient'])
 
-        if self.data['racktivityClient'] not in j.clients.racktivity.list():
-            raise LookupError("No racktivity client instance found named '%s'" % self.data['racktivityClient'])
+        for r in self.data['racktivities']:
+            if r['client'] not in j.clients.racktivity.list():
+                raise LookupError("No racktivity client instance found named '%s'" % r['client'])
+            
+            p = r.get('port')
+            try:
+                int(p)
+            except (ValueError, TypeError):
+                raise ValueError("Racktivity portnumber was not valid. Found: '%s'" % p)
 
     def install(self):
         # add host to zeroboot
@@ -129,15 +131,19 @@ class ZerobootRacktivityHost(TemplateBase):
         """
         self.state.check('actions', 'install', 'ok')
 
-        self._zeroboot.port_power_on(self.data['racktivityPort'], self._racktivity, self._powermodule_id)
+        for r in self._racktivities:
+            self._zeroboot.port_power_on(r['port'], r['client'], r['powermodule'])
+
         self.data['powerState'] = True
 
     def power_off(self):
         """ Powers off host
         """
         self.state.check('actions', 'install', 'ok')
-        
-        self._zeroboot.port_power_off(self.data['racktivityPort'], self._racktivity, self._powermodule_id)
+
+        for r in self._racktivities:
+            self._zeroboot.port_power_off(r['port'], r['client'], r['powermodule'])
+
         self.data['powerState'] = False
 
     def power_cycle(self):
@@ -145,11 +151,13 @@ class ZerobootRacktivityHost(TemplateBase):
         """
         self.state.check('actions', 'install', 'ok')
         
-        self._zeroboot.port_power_cycle([self.data['racktivityPort']], self._racktivity, self._powermodule_id)
+        for r in self._racktivities:
+            self._zeroboot.port_power_cycle(r['port'], r['client'], r['powermodule'])
+
         # power cycle always ends with a turned on machine
         self.data['powerState'] = True
 
-    def power_status(self):
+    def power_status(self, fix_mismatch=True):
         """ Power state of host
         
         Returns:
@@ -157,7 +165,63 @@ class ZerobootRacktivityHost(TemplateBase):
         """
         self.state.check('actions', 'install', 'ok')
 
-        return self._zeroboot.port_info(self.data['racktivityPort'], self._racktivity, self._powermodule_id)[1]
+        # get powerstatus of each device, if all match return first result
+        statuses = self._list_power_status()
+
+        if len(statuses) == 1:
+            return statuses[0]
+
+        match = True
+        comp =  statuses[0]
+        for s in statuses:
+            if comp != s:
+                match = False
+                break
+
+        if match:
+            return statuses[0]
+
+        # if not match raise Error
+        # (if fix_mismatch) set last set powerstate to all devices and check power status again
+        if not fix_mismatch:
+            raise RuntimeError("The power status of the different racktivity devices for host %s did not match" % self._host)
+        else:
+            if self.data['powerState']:
+                self.power_on()
+            else:
+                self.power_off()
+
+            statuses = self._list_power_status()
+
+            match = True
+            comp =  statuses[0]
+            for s in statuses:
+                if comp != s:
+                    match = False
+                    break
+
+            if match:
+                return statuses[0]
+
+            raise RuntimeError("The power status of the different racktivity devices for host %s did not match after fixup attempt" % self._host)
+
+    def _list_power_status(self):
+        """ Returns list of powerstatuses of all devices
+        
+        Returns:
+            [bool] -- List of power states of the racktivity clients
+        """
+        result = []
+
+        for r in self._racktivities:
+            state = self._zeroboot.port_info(r['port'], r['client'], r['powermodule'])[1]
+            if state is None:
+                raise RuntimeError("Racktivity client (%s) returned invalid power state for host %s" % 
+                    (r['client'].config.instance, self._host))
+
+            result.append(state)
+
+        return result
 
     def monitor(self):
         """Checks if the power status of the host is the same as the last called power_on/power_off action
