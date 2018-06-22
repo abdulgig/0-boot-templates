@@ -42,13 +42,12 @@ The current supported service and config titles are:
     - `port`: (optional) Client access port on the racktivity device 
  - `rack_host_data`: racktivity host service data
     - `zboot_service`: zerboot service name
-    - `racktivity_service`: racktivity client service name for the host
+    - `racktivity_data`: racktivity data (format: <racktivity client/service>;<port>;<powermodule>  powermodule is optional, only for SE models)
+    - `redundant_racktivity_data`: (optional, meant for a redundant power supply) Format the same as `racktivity_data`
     - `mac`: mac address of the host
     - `ip`: local ip address of the host
     - `network`: network the host is in
     - `hostname`: hostname of the host
-    - `racktivity_port`: racktivity port the client is connected to
-    - `racktivity_powermodule`: (optional, only for SE models) powermodule on the racktivity device
     - `lkrn_url`: Boot url
 
 ## Usage
