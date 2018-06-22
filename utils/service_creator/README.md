@@ -20,15 +20,27 @@ The rows underneath contain the data for the service, matching the configuration
 
 The different service configurations are separated/terminated by an empty line or EOF.
 
-The titles are case insensitive.
+All titles are case insensitive.
 
 The current supported service and config titles are:
+ - `ssh_data`: SSH client service data
+    - `host_address`: address of the target ssh device
+    - `hostname`: hostname of the device, will be used for service name
+    - `user`: Username for the device
+    - `password`: Password for the device
+    - `port`: (optional, defaults to 22) SSH port on the device
+- `zboot_data`: zboot client service data
+    - `name`: Name to give the zboot service
+    - `ztier_network`: Zerotier network
+    - `ssh_service`: SSH service to the zboot host/router
+    - `ztier_service`: (optional) zerotier service/client name
  - `racktivity_data`: Racktivity client service data
     - `host_address`: address of the racktivity device
+    - `hostname`: hostname of the racktivity device, will be used for service name
     - `user`: Username for the racktivity device
     - `password`: Password for the racktivity device
     - `port`: (optional) Client access port on the racktivity device 
- - `host_data`: racktivity host service data
+ - `rack_host_data`: racktivity host service data
     - `zboot_service`: zerboot service name
     - `racktivity_service`: racktivity client service name for the host
     - `mac`: mac address of the host

@@ -18,17 +18,158 @@ def main(argv):
     else:
         robot = j.clients.zrobot.robots[args.robot_name]
 
+    create_ssh_services(robot, args.data_file)
+    create_zboot_services(robot, args.data_file)
     create_rack_services(robot, args.data_file)
     hosts = create_host_services(robot, args.data_file)
 
     if args.pool_name:
         add_hosts_pool_service(robot, hosts, args.pool_name)
 
+def create_ssh_services(robot, data_file):
+    """Creates the SSH clients defined in the CSV file
+    
+    Arguments:
+        robot {ZRboot} -- Robot instance
+        data_file {str} -- location of the CSV file
+    """
+    with open(data_file, newline='') as csvfile:
+        rdr = csv.reader(csvfile, delimiter=',')
+        data_found = False
+        title_indexes = {}
+        row_i = -1
+        for row in rdr:
+            row_i += 1
+            # find ssh data starting row
+            if not data_found:
+                if str(row[0]).lower() == ('ssh_data'):
+                    print("ssh_data header found at row %s" % str(row_i + 1))
+                    data_found = True
+                continue
+            
+            # the column titles should be in  the next row
+            if not title_indexes:
+                col_i = 0
+                for col in row:
+                    if col.lower() == 'host_address':
+                        title_indexes['host_address'] = col_i
+                    if col.lower() == 'hostname':
+                        title_indexes['hostname'] = col_i
+                    if col.lower() == 'user':
+                        title_indexes['user'] = col_i
+                    if col.lower() == 'password':
+                        title_indexes['password'] = col_i
+                    if col.lower() == 'port':
+                        title_indexes['port'] = col_i
+
+                    col_i += 1
+                
+                # check required columns
+                for item in ('host_address', 'user', 'password', 'hostname'):
+                    try:
+                        title_indexes[item]
+                    except KeyError:
+                        raise RuntimeError("key '%s' was not provided for the ssh_data at row %s" % (item, str(row_i + 1)))
+                
+                continue
+
+            # keep adding services till empty row or EOF
+            if row[0] in (None, "") and row[1] in (None, ""):
+                print('SSH client data ended at row %s' % str(row_i + 1))
+                break
+
+            # create ssh client
+            data={}
+            data["login"] = row[title_indexes['user']]
+            data["password"] = row[title_indexes['password']]
+            data["host"] = row[title_indexes['host_address']]
+            if title_indexes.get("port") and row[title_indexes["port"]]:
+                data["port"] = int(row[title_indexes["port"]])
+
+            robot.services.find_or_create(
+                "github.com/zero-os/0-boot-templates/ssh_client/0.0.1",
+                row[title_indexes["hostname"]],
+                data=data,
+            )
+        else:
+            if not data_found:
+                print("No SSH client data was found")
+            else:
+                print("SSH client data ended at last row")
+
+def create_zboot_services(robot, data_file):
+    """Creates the zboot clients services defined in the CSV file
+    
+    Arguments:
+        robot {ZRobot} -- Robot instance
+        data_file {str} -- location of the CSV file
+    """
+    with open(data_file, newline='') as csvfile:
+        rdr = csv.reader(csvfile, delimiter=',')
+        data_found = False
+        title_indexes = {}
+        row_i = -1
+        for row in rdr:
+            row_i += 1
+            # find zboot data starting row
+            if not data_found:
+                if str(row[0]).lower() == ('zboot_data'):
+                    print("zboot_data header found at row %s" % str(row_i + 1))
+                    data_found = True
+                continue
+            
+            # the column titles should be in  the next row
+            if not title_indexes:
+                col_i = 0
+                for col in row:
+                    if col.lower() == 'name':
+                        title_indexes['name'] = col_i
+                    if col.lower() == 'ztier_network':
+                        title_indexes['ztier_network'] = col_i
+                    if col.lower() == 'ssh_service':
+                        title_indexes['ssh_service'] = col_i
+                    if col.lower() == 'ztier_service':
+                        title_indexes['ztier_service'] = col_i
+
+                    col_i += 1
+                
+                # check required columns
+                for item in ('name', 'ztier_network', 'ssh_service'):
+                    try:
+                        title_indexes[item]
+                    except KeyError:
+                        raise RuntimeError("key '%s' was not provided for the zboot_data at row %s" % (item, str(row_i + 1)))
+                
+                continue
+
+            # keep adding services till empty row or EOF
+            if row[0] in (None, "") and row[1] in (None, ""):
+                print('Zboot client data ended at row %s' % str(row_i + 1))
+                break
+
+            # create ssh client
+            data={}
+            data["networkId"] = row[title_indexes['ztier_network']]
+            data["sshClient"] = row[title_indexes['ssh_service']]
+            if title_indexes.get("ztier_service") and row[title_indexes["ztier_service"]]:
+                data["zerotierClient"] = int(row[title_indexes["ztier_service"]])
+
+            robot.services.find_or_create(
+                "github.com/zero-os/0-boot-templates/zeroboot_client/0.0.1",
+                row[title_indexes["name"]],
+                data=data,
+            )
+        else:
+            if not data_found:
+                print("No Zboot client data was found")
+            else:
+                print("Zboot client data ended at last row")
+
 def create_rack_services(robot, data_file):
     """Creates the racktivity clients defined in the CSV file
     
     Arguments:
-        robot {ZRboot} -- Robot instance
+        robot {ZRobot} -- Robot instance
         data_file {str} -- location of the CSV file
     """
     with open(data_file, newline='') as csvfile:
@@ -98,7 +239,7 @@ def create_host_services(robot, data_file):
     """Creates the host services and adds them to a pool if pool_name provided
     
     Arguments:
-        robot {ZRboot} -- Robot instance
+        robot {ZRobot} -- Robot instance
         data_file {str} -- Location of CSV file
         pool_name {str} -- Name of the pool to add the hosts to
 
@@ -116,8 +257,8 @@ def create_host_services(robot, data_file):
             row_i += 1
             # find host data starting row
             if not host_data_found:
-                if str(row[0]).lower() == ('host_data'):
-                    print("host_data header found at row %s" % str(row_i + 1))
+                if str(row[0]).lower() == ('rack_host_data'):
+                    print("rack_host_data header found at row %s" % str(row_i + 1))
                     host_data_found = True
                 continue
 
@@ -192,7 +333,7 @@ def add_hosts_pool_service(robot, hosts, pool_name):
     """Creates the pool service if it doesn't exist and adds all provided hosts in that pool
     
     Arguments:
-        robot {ZRboot} -- Robot instance
+        robot {ZRobot} -- Robot instance
         hosts [str] -- List of hostnames to add to the pool
         pool_name {str} -- Name to give the pool service
     """

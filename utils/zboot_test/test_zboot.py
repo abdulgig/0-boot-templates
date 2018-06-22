@@ -200,8 +200,11 @@ def cleanup():
     # cleanup clients
     for h in host_pool:
         if WIPE:
-            for d in h['host'].disks.list():
-                h['host'].client.system('dd if=/dev/zero of=%s bs=1G count=1' % d.devicename).get()
+            try:
+                for d in h['host'].disks.list():
+                    h['host'].client.system('dd if=/dev/zero of=%s bs=1G count=1' % d.devicename).get()
+            except BaseException as err:
+                print('Something went wrong wiping the disks for host %s : %s' % (h['name'], err))
 
         j.clients.zos.delete(instance=h['name'])
 
