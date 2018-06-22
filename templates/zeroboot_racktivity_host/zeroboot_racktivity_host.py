@@ -152,7 +152,7 @@ class ZerobootRacktivityHost(TemplateBase):
         self.state.check('actions', 'install', 'ok')
         
         for r in self._racktivities:
-            self._zeroboot.port_power_cycle(r['port'], r['client'], r['powermodule'])
+            self._zeroboot.port_power_cycle([r['port']], r['client'], r['powermodule'])
 
         # power cycle always ends with a turned on machine
         self.data['powerState'] = True
