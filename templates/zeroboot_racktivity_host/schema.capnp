@@ -8,7 +8,7 @@ struct Schema {
     ip @4: Text; # Target IP address
     hostname @5: Text; # Hostname of target
     lkrnUrl @6: Text; # URL to LKRN file with ipxe boot configuration
-    powerState @9: Bool; # Internally saved powerstate (Do not provide in init data)
+    powerState @7: Bool; # Internally saved powerstate (Do not provide in init data)
 }
 
 struct Racktivity {
