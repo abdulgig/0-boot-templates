@@ -381,7 +381,7 @@ def add_hosts_pool_service(robot, hosts, pool_name):
 
     for host in hosts:
         # add host to pool
-        pool_service.schedule_action('add', args={'zboot_host': host}).wait(die=True)
+        pool_service.schedule_action('add', args={'host': host}).wait(die=True)
 
 if __name__ == "__main__":
     main(sys.argv)

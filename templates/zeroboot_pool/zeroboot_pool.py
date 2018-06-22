@@ -44,30 +44,30 @@ class ZerobootPool(TemplateBase):
         except StateCheckError:
             raise StateCheckError("zeroboot host %s was not installed" % zbh)
 
-    def add(self, zboot_host):
+    def add(self, host):
         """ Adds a single zeroboot host to the pool
         
         Arguments:
-            zboot_host str -- Name of the zeroboot host service
+            host str -- Name of the zeroboot host service
         """
         # check if it's not a duplicate
-        if zboot_host in self.data["zerobootHosts"]:
-            raise ValueError("zboot host '%s' is already present in the pool" % zboot_host)
+        if host in self.data["zerobootHosts"]:
+            raise ValueError("zboot host '%s' is already present in the pool" % host)
             
-        self._validate_host(zboot_host)
+        self._validate_host(host)
 
-        self.data["zerobootHosts"].append(zboot_host)
+        self.data["zerobootHosts"].append(host)
 
-    def remove(self, zboot_host):
+    def remove(self, host):
         """ Removes a single zeroboot host from the pool
         
         Arguments:
-            zboot_host str -- Name of the zeroboot host service
+            host str -- Name of the zeroboot host service
         """
         try:
-            self.data["zerobootHosts"].remove(zboot_host)
+            self.data["zerobootHosts"].remove(host)
         except ValueError:
-            self.logger.debug("host '%s' was not in the list, skipping removal" % zboot_host)
+            self.logger.debug("host '%s' was not in the list, skipping removal" % host)
             pass
 
     def unreserved_host(self, caller_guid):
