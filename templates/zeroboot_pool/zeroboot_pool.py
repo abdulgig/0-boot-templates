@@ -1,3 +1,5 @@
+import time
+
 from js9 import j
 
 from zerorobot.template.base import TemplateBase
@@ -111,3 +113,36 @@ class ZerobootPool(TemplateBase):
         """
 
         return self.data['zerobootHosts']
+
+    def power_on(self, interval=1):
+        """ Powers on all the hosts in the pool
+        
+        Keyword Arguments:
+            interval int -- Interval before turning on the next host (default: {1})
+        """
+        for host in self.data['zerobootHosts']:
+            s = self.api.services.get(name=host)
+            s.schedule_action("power_on").wait(die=True)
+            time.sleep(interval)
+
+    def power_off(self,interval=1):
+        """ Powers off all the hosts in the pool
+        
+        Keyword Arguments:
+            interval int -- Interval before turning off the next host (default: {1})
+        """
+        for host in self.data['zerobootHosts']:
+            s = self.api.services.get(name=host)
+            s.schedule_action("power_off").wait(die=True)
+            time.sleep(interval)
+
+    def power_cycle(self, interval=1):
+        """ Power cycles all the hosts in the pool 
+        
+        Keyword Arguments:
+            interval {int} -- [description] (default: {1})
+        """
+        for host in self.data['zerobootHosts']:
+            s = self.api.services.get(name=host)
+            s.schedule_action("power_cycle").wait(die=True)
+            time.sleep(interval)
