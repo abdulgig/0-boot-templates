@@ -21,7 +21,7 @@ def main(argv):
     create_ssh_services(robot, args.data_file)
     create_zboot_services(robot, args.data_file)
     create_rack_services(robot, args.data_file)
-    hosts = create_host_services(robot, args.data_file)
+    hosts = create_rack_host_services(robot, args.data_file)
 
     if args.pool_name:
         add_hosts_pool_service(robot, hosts, args.pool_name)
@@ -235,13 +235,12 @@ def create_rack_services(robot, data_file):
             else:
                 print("Racktivity client data ended at last row")
 
-def create_host_services(robot, data_file):
-    """Creates the host services and adds them to a pool if pool_name provided
+def create_rack_host_services(robot, data_file):
+    """Creates the racktivity host services
     
     Arguments:
         robot {ZRobot} -- Robot instance
         data_file {str} -- Location of CSV file
-        pool_name {str} -- Name of the pool to add the hosts to
 
     Returns:
         [str] -- List of host service names created
@@ -268,8 +267,10 @@ def create_host_services(robot, data_file):
                 for col in row:
                     if col.lower() == 'zboot_service':
                         title_indexes['zboot_service'] = col_i
-                    if col.lower() == 'racktivity_service':
-                        title_indexes['racktivity_service'] = col_i
+                    if col.lower() == 'racktivity_data':
+                        title_indexes['racktivity_data'] = col_i
+                    if col.lower() == 'redundant_racktivity_data':
+                        title_indexes['redundant_racktivity_data'] = col_i
                     if col.lower() == 'mac':
                         title_indexes['mac'] = col_i
                     if col.lower() == 'ip':
@@ -278,16 +279,12 @@ def create_host_services(robot, data_file):
                         title_indexes['network'] = col_i
                     if col.lower() == 'hostname':
                         title_indexes['hostname'] = col_i
-                    if col.lower() == 'racktivity_port':
-                        title_indexes['racktivity_port'] = col_i
-                    if col.lower() == 'racktivity_powermodule':
-                        title_indexes['racktivity_powermodule'] = col_i
                     if col.lower() == 'lkrn_url':
                         title_indexes['lkrn_url'] = col_i
                     col_i += 1
                 
                 # check required columns
-                for item in ('zboot_service', 'racktivity_service', 'mac', 'ip', 'network', 'racktivity_port', 'lkrn_url'):
+                for item in ('zboot_service', 'racktivity_data', 'mac', 'ip', 'network', 'lkrn_url'):
                     try:
                         title_indexes[item]
                     except KeyError:
@@ -302,15 +299,18 @@ def create_host_services(robot, data_file):
             
             data = {}
             data["zerobootClient"] = row[title_indexes['zboot_service']]
-            data["racktivityClient"] = row[title_indexes['racktivity_service']]
             data["mac"] = row[title_indexes['mac']]
             data["ip"] = row[title_indexes['ip']]
             data["hostname"] = row[title_indexes['hostname']]
             data["network"] = row[title_indexes['network']]
-            data["racktivityPort"] = int(row[title_indexes['racktivity_port']])
             data["lkrn_url"] = row[title_indexes['lkrn_url']]
-            if title_indexes.get("racktivity_powermodule") and row[title_indexes["racktivity_powermodule"]]:
-                data["racktivityPowerModule"] = row[title_indexes["racktivity_powermodule"]]
+
+            data['racktivities'] = []
+            data['racktivities'].append(_rack_data_conv(row[title_indexes['racktivity_data']]))
+
+            if title_indexes.get("redundant_racktivity_data") and row[title_indexes["redundant_racktivity_data"]]:
+                data['racktivities'].append(_rack_data_conv(row[title_indexes['redundant_racktivity_data']]))
+
 
             host_service = robot.services.create(
                 "github.com/zero-os/0-boot-templates/zeroboot_racktivity_host/0.0.1",
@@ -328,6 +328,42 @@ def create_host_services(robot, data_file):
                 print("host data ended at last row")
 
     return hosts
+
+def _rack_data_conv(data):
+    """ Converts data in CSV file to dict
+
+    input format:
+    "<client>;<port>;<powermodule>" Where the powermodule is optional
+
+    output format:
+    {
+        'client': <client>,
+        'port': <port>,
+        'powermodule': <powermodule>,
+    }
+    
+    Arguments:
+        data str -- data in the CSV field
+    
+    Returns:
+        dict -- data in dict form
+    """
+    result = {}
+
+    x = data.split(";")
+
+    if len(x) == 2:
+        x.append(None)
+    elif len(x) < 2:
+        raise RuntimeError("Not enough segments in racktivity data. Found: %s" % data)
+    elif len(x) > 3:
+        raise RuntimeError("too many segments in racktivity data. Found: %s" % data)
+
+    result['client'] = x[0]
+    result['port'] = int(x[1])
+    result['powermodule'] = x[2]
+
+    return result
 
 def add_hosts_pool_service(robot, hosts, pool_name):
     """Creates the pool service if it doesn't exist and adds all provided hosts in that pool
