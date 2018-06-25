@@ -1,3 +1,5 @@
+import time
+
 from js9 import j
 
 from zerorobot.template.base import TemplateBase
@@ -151,8 +153,10 @@ class ZerobootRacktivityHost(TemplateBase):
         """
         self.state.check('actions', 'install', 'ok')
         
-        for r in self._racktivities:
-            self._zeroboot.port_power_cycle([r['port']], r['client'], r['powermodule'])
+        # don't for loop the racktivities and power cycle them as if they are redundant, the host will stay on
+        self.power_off()
+        time.sleep(5)
+        self.power_on()
 
         # power cycle always ends with a turned on machine
         self.data['powerState'] = True
