@@ -153,6 +153,12 @@ def run(run_nr, key):
                 time.sleep(10)
 
         # create vm service
+        # delete before creating if already exists
+        for s in host_robot.services.find(name=VM_DATA["name"]):
+            print('cleaning up VM on host')
+            s.schedule_action('uninstall').wait(die=True)
+            s.delete()
+
         print("Creating VM on Node using the robot")
         data={
             'cpu': VM_DATA['cpu'],
@@ -189,7 +195,8 @@ def run(run_nr, key):
         print("\nVM OS release:\n%s\n" % out)
 
         if SHUTDOWN_VM:
-            vm_service.schedule_action("shutdown").wait(die=True)
+            vm_service.schedule_action("uninstall").wait(die=True)
+            vm_service.delete()
 
         print("----")
     
