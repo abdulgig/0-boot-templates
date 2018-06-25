@@ -139,11 +139,11 @@ def run(run_nr, key):
         # check host robot is alive
         retry = 1
         while True:
-            print("robot ping attempt %s..." % str(retry))
+            print("robot ping attempt %s for host %s..." % (str(retry), h['name']))
 
             try:
                 host_robot.templates.uids
-                print("Host robot is ready")
+                print("Host %s's robot is ready" % h['name'])
                 break
             except BaseException:
                 retry += 1
@@ -155,11 +155,11 @@ def run(run_nr, key):
         # create vm service
         # delete before creating if already exists
         for s in host_robot.services.find(name=VM_DATA["name"]):
-            print('cleaning up VM on host')
+            print('cleaning up VM on host %s' % h['name'])
             s.schedule_action('uninstall').wait(die=True)
             s.delete()
 
-        print("Creating VM on Node using the robot")
+        print("Creating VM on host %s using the robot" % h['name'])
         data={
             'cpu': VM_DATA['cpu'],
             'memory': VM_DATA['memory'],
