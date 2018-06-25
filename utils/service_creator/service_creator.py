@@ -44,6 +44,8 @@ def clean_env(robot):
         robot {ZRobot} -- Robot instance
     
     """
+    print("Cleaning up environment...")
+
     # delete reservation services
     for s in robot.services.find(template_uid='github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1'):
         s.schedule_action("uninstall").wait(die=True).result
@@ -68,6 +70,8 @@ def clean_env(robot):
     # delete ssh services
     for s in robot.services.find(template_uid='github.com/zero-os/0-boot-templates/ssh_client/0.0.1'):
         s.delete()
+
+    print("Environment should be cleaned up now!")
 
 def create_ssh_services(robot, data_file):
     """Creates the SSH clients defined in the CSV file
