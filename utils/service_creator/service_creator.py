@@ -9,6 +9,7 @@ def main(argv):
     parser.add_argument("-d", "--data", dest="data_file", help="CSV file to read the host data from", required=True)
     parser.add_argument("-r", "--robot", dest="robot_name", help="0-robot instance to use", required=True)
     parser.add_argument("-p", "--pool", dest="pool_name", help="Puts all hosts in a pool with provided name", required=False)
+    parser.add_argument("-c", "--clean", dest="clean", help="Start from clean env. Deletes all reservation, pool, racktivity host, racktivity client, zeroboot and ssh services from the robot it has access to.", required=False, action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -18,6 +19,9 @@ def main(argv):
     else:
         robot = j.clients.zrobot.robots[args.robot_name]
 
+    if args.clean:
+        clean_env(robot)
+
     create_ssh_services(robot, args.data_file)
     create_zboot_services(robot, args.data_file)
     create_rack_services(robot, args.data_file)
@@ -26,11 +30,50 @@ def main(argv):
     if args.pool_name:
         add_hosts_pool_service(robot, hosts, args.pool_name)
 
+def clean_env(robot):
+    """ Cleans up environment of services from the following templates:
+
+        - Uninstalls and deletes the zeroboot_reservation templates
+        - Deletes pool services
+        - Deletes racktivity host services
+        - Deletes racktivity client services
+        - Deletes zeroboot client services
+        - Deletes ssh client services
+
+    Arguments:
+        robot {ZRobot} -- Robot instance
+    
+    """
+    # delete reservation services
+    for s in robot.services.find(template_uid='github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1'):
+        s.schedule_action("uninstall").wait(die=True).result
+        s.delete()
+
+    # delete pool services
+    for s in robot.services.find(template_uid='github.com/zero-os/0-boot-templates/zeroboot_pool/0.0.1'):
+        s.delete()
+
+    # delete racktivity host services
+    for s in robot.services.find(template_uid='github.com/zero-os/0-boot-templates/zeroboot_racktivity_host/0.0.1'):
+        s.delete()
+
+    # delete racktivity client services        
+    for s in robot.services.find(template_uid='github.com/zero-os/0-boot-templates/racktivity_client/0.0.1'):
+        s.delete()
+
+    # delete zboot services
+    for s in robot.services.find(template_uid='github.com/zero-os/0-boot-templates/zeroboot_client/0.0.1'):
+        s.delete()
+
+    # delete ssh services
+    for s in robot.services.find(template_uid='github.com/zero-os/0-boot-templates/ssh_client/0.0.1'):
+        s.delete()
+
 def create_ssh_services(robot, data_file):
     """Creates the SSH clients defined in the CSV file
     
     Arguments:
-        robot {ZRboot} -- Robot instance
+        robot {ZRobot} -- Robot instance
         data_file {str} -- location of the CSV file
     """
     with open(data_file, newline='') as csvfile:
