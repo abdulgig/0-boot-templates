@@ -2,6 +2,8 @@
 
 This script is meant to quickly test a zeroboot environment.
 
+Variables for the test are set as static arguments at the top of the script.
+
 What this test will do is make reservations of free hosts in the provided pool service (`ZEROBOOT_POOL`) on the provided robot instance (`ROBOT_INSTANCE` that should already be connected with on the host).
 
 It will make the reservations in groups defined by `MAX_RESERVATIONS_PER_RUN` or until there are no more free hosts left to reserve if less.
