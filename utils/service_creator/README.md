@@ -1,14 +1,12 @@
 # Service creator tool
 
-This script is responsible for creating zeroboot host services.
+This script is responsible for creating zeroboot host services. If a host service already exists with a certain hostname from the data (CSV) file, adding the host will be skipped.
 
 This script can also create the racktivity client services if not already present on the robot.
 
-If pool flag is provided with pool name, all the hosts in the datafile will be added to that pool.
+If pool flag is provided with pool name, all the hosts in the data file that have had services created will be added to that pool.
 
-These services need to be made in advance and be present on the 0-robot and accessible for the script
-    - Any zboot service defined in the data with the following template uid: github.com/zero-os/0-boot-templates/zeroboot_client/0.0.1
-    - Any ssh-service defined in the data with the following template uid: github.com/zero-os/0-boot-templates/ssh_client/0.0.1
+There is also a `--clean` flag that removes all zboot related services before creating the services defined in the data file.
 
 ## CSV source file
 
@@ -53,6 +51,23 @@ The current supported service and config titles are:
 ## Usage
 
 The parameters to the script are:
-    - robot {str} : The name of the robot to connect to. (zrobot robot connect main http://127.0.0.1:6600 -> main). If 'debug' the robot will be a MagicMock()
-    - data {str} : CSV file to read the host data from, according to the format described above
-    - pool {str}: flag to indicate that all the hosts in the file will be added to a single pool, the string provided sets the pool service name.
+* --robot {str} (-r) : The name of the robot to connect to. (zrobot robot connect main http://127.0.0.1:6600 -> main). If 'debug' the robot will be a MagicMock()
+* --data {str} (-d) : CSV file to read the host data from, according to the format described above
+* --pool {str} (-p): flag to indicate that all the hosts in the file will be added to a single pool, the string provided sets the pool service name.
+
+Flags:
+
+* --clean (-c): Start from clean env. Deletes all reservation, pool, racktivity host, racktivity client, zeroboot and ssh services from the robot it has access to. 
+These are the following template uids:
+    * `github.com/zero-os/0-boot-templates/zeroboot_reservation/0.0.1`
+    * `github.com/zero-os/0-boot-templates/zeroboot_pool/0.0.1`
+    * `github.com/zero-os/0-boot-templates/zeroboot_racktivity_host/0.0.1`
+    * `github.com/zero-os/0-boot-templates/racktivity_client/0.0.1`
+    * `github.com/zero-os/0-boot-templates/zeroboot_client/0.0.1`
+    * `github.com/zero-os/0-boot-templates/ssh_client/0.0.1`
+
+### example
+
+```sh
+sudo python3 service_creator.py --data ~/Downloads/be-scale-2.csv --robot local --pool pool1
+```

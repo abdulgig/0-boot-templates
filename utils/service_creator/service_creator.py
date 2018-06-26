@@ -343,7 +343,13 @@ def create_rack_host_services(robot, data_file):
             if row[0] in (None, "") and row[1] in (None, ""):
                 print('Host data ended at row %s' % str(row_i + 1))
                 break
-            
+
+            # if service already exists, skip
+            s = robot.services.find(name=row[title_indexes['hostname']])
+            if len(s) > 0:
+                print("There is already a service running for host %s. Skipping to next host" % row[title_indexes['hostname']])
+                continue
+
             data = {}
             data["zerobootClient"] = row[title_indexes['zboot_service']]
             data["mac"] = row[title_indexes['mac']]
