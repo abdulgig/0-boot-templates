@@ -5,7 +5,8 @@ import traceback
 
 from js9 import j
 
-WIPE=True       # wipe all drives during cleanup
+WIPE=False      # wipe all drives during cleanup
+WIPE_KEY=True   # wipe ssh key used for connecting to the VM
 SHUTDOWN=False  # shutdown host at cleanup
 SHUTDOWN_VM=False # send shutdown action after VM was confirmed up and running
 MAX_RETRIES = 10 # max amount of pings/alive checks
@@ -50,7 +51,8 @@ def main(argv):
         print(str(err) + "\n\n")
 
     finally:
-        key.delete()
+        if WIPE_KEY:
+            key.delete()
         cleanup()
 
         print("Done!")
@@ -186,7 +188,7 @@ def run(run_nr, key):
                 if retry > MAX_RETRIES:
                     raise RuntimeError('Maximum retries of connecting to container reached')
                 print("Waiting before next ssh ping")
-                time.sleep(5)
+                time.sleep(10)
     
         pf = ssh_service.prefab
 
@@ -217,7 +219,7 @@ def cleanup():
 
     for r in reservation_pool:
         if SHUTDOWN:
-            r.schedule_action('uninstall').wait(die=True).result
+            r.schedule_action('uninstall').wait(die=True)
         r.delete()
 
 if __name__ == "__main__":

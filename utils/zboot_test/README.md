@@ -9,4 +9,9 @@ It will make the reservations in groups defined by `MAX_RESERVATIONS_PER_RUN` or
 Each reservation should boot with zero-os and the script will Ping the reserved hosts using the zos-client, so the `BOOT_URL` should contain the `development` boot parameter.
 
 Then for each reservation, the robot that's running on it will be called and asked to run a a single VM service running ubuntu and 1 disk.
-When the VM comes online, the script will SSH into it and print the OS running on the VM (which should be ubuntu 16.04 or the OS on the `flist` parameter in `VM_DATA` if changed)
+When the VM comes online, the script will SSH into it and print the OS information running on the VM (which should be ubuntu 16.04 or the OS provided in the `flist` parameter in `VM_DATA` if changed)
+
+Run the script with:
+```py
+python3 test_zboot.py
+```
