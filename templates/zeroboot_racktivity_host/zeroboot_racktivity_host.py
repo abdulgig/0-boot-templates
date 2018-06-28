@@ -14,6 +14,7 @@ class ZerobootRacktivityHost(TemplateBase):
         super().__init__(name=name, guid=guid, data=data)
         self.__network = None
         self.__host = None
+        self.__zboot = None
 
     @property
     def _zeroboot(self):
@@ -22,8 +23,11 @@ class ZerobootRacktivityHost(TemplateBase):
         Returns:
             ZerobootClient -- zeroboot JS client
         """
-        return j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
-    
+        if not self.__zboot:
+            self.__zboot = j.clients.zboot.get(self.data['zerobootClient'], interactive=False)
+
+        return self.__zboot
+
     @property
     def _racktivities(self):
         """ Returns list of Racktivity device settings that correspond to the host
