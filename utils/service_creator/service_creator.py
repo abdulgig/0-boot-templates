@@ -25,7 +25,11 @@ def main(argv):
     create_ssh_services(robot, args.data_file)
     create_zboot_services(robot, args.data_file)
     create_rack_services(robot, args.data_file)
-    hosts = create_rack_host_services(robot, args.data_file)
+    create_ipmi_services(robot, args.data_file)
+
+    hosts = []
+    hosts.extend(create_rack_host_services(robot, args.data_file))
+    hosts.extend(create_ipmi_host_services(robot, args.data_file))
 
     if args.pool_name:
         add_hosts_pool_service(robot, hosts, args.pool_name)
@@ -352,7 +356,7 @@ def create_rack_host_services(robot, data_file):
 
             data = {}
             data["zerobootClient"] = row[title_indexes['zboot_service']]
-            data["mac"] = row[title_indexes['mac']]
+            data["mac"] = row[title_indexes['mac']].lower()
             data["ip"] = row[title_indexes['ip']]
             data["hostname"] = row[title_indexes['hostname']]
             data["network"] = row[title_indexes['network']]
@@ -556,7 +560,7 @@ def create_ipmi_host_services(robot, data_file):
 
             data = {}
             data["zerobootClient"] = row[title_indexes['zboot_service']]
-            data["mac"] = row[title_indexes['mac']]
+            data["mac"] = row[title_indexes['mac']].lower()
             data["ip"] = row[title_indexes['ip']]
             data["hostname"] = row[title_indexes['hostname']]
             data["network"] = row[title_indexes['network']]
