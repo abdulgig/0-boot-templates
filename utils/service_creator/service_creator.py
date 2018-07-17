@@ -44,6 +44,8 @@ def clean_env(robot):
         - Deletes zeroboot client services
         - Deletes ssh client services
 
+    Keep in mind, this will only remove the services the zero-robot client has access to
+
     Arguments:
         robot {ZRobot} -- Robot instance
     
