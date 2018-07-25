@@ -25,7 +25,11 @@ def main(argv):
     create_ssh_services(robot, args.data_file)
     create_zboot_services(robot, args.data_file)
     create_rack_services(robot, args.data_file)
-    hosts = create_rack_host_services(robot, args.data_file)
+    create_ipmi_services(robot, args.data_file)
+
+    hosts = []
+    hosts.extend(create_rack_host_services(robot, args.data_file))
+    hosts.extend(create_ipmi_host_services(robot, args.data_file))
 
     if args.pool_name:
         add_hosts_pool_service(robot, hosts, args.pool_name)
@@ -39,6 +43,8 @@ def clean_env(robot):
         - Deletes racktivity client services
         - Deletes zeroboot client services
         - Deletes ssh client services
+
+    Keep in mind, this will only remove the services the zero-robot client has access to
 
     Arguments:
         robot {ZRobot} -- Robot instance
@@ -335,7 +341,7 @@ def create_rack_host_services(robot, data_file):
                     try:
                         title_indexes[item]
                     except KeyError:
-                        raise RuntimeError("key '%s' was not provided for the user_data at row %s" % (item, str(row_i + 1)))
+                        raise RuntimeError("key '%s' was not provided for the rack_host_data at row %s" % (item, str(row_i + 1)))
 
                 continue
             
@@ -352,7 +358,7 @@ def create_rack_host_services(robot, data_file):
 
             data = {}
             data["zerobootClient"] = row[title_indexes['zboot_service']]
-            data["mac"] = row[title_indexes['mac']]
+            data["mac"] = row[title_indexes['mac']].lower()
             data["ip"] = row[title_indexes['ip']]
             data["hostname"] = row[title_indexes['hostname']]
             data["network"] = row[title_indexes['network']]
@@ -417,6 +423,168 @@ def _rack_data_conv(data):
     result['powermodule'] = x[2]
 
     return result
+
+def create_ipmi_services(robot, data_file):
+    """Creates the ipmi clients defined in the CSV file
+    
+    Arguments:
+        robot {ZRobot} -- Robot instance
+        data_file {str} -- location of the CSV file
+    """
+    with open(data_file, newline='') as csvfile:
+        rdr = csv.reader(csvfile, delimiter=',')
+        ipmi_data_found = False
+        title_indexes = {}
+        row_i = -1
+        for row in rdr:
+            row_i += 1
+            # find ipmi data starting row
+            if not ipmi_data_found:
+                if str(row[0]).lower() == ('ipmi_data'):
+                    print("ipmi_data header found at row %s" % str(row_i + 1))
+                    ipmi_data_found = True
+                continue
+
+            # the column titles should be in  the next row
+            if not title_indexes:
+                col_i = 0
+                for col in row:
+                    if col.lower() == 'host_address':
+                        title_indexes['host_address'] = col_i
+                    if col.lower() == 'user':
+                        title_indexes['user'] = col_i
+                    if col.lower() == 'password':
+                        title_indexes['password'] = col_i
+                    if col.lower() == 'hostname':
+                        title_indexes['hostname'] = col_i
+                    if col.lower() == 'port':
+                        title_indexes['port'] = col_i
+                    col_i += 1
+                
+                # check required columns
+                for item in ('host_address', 'user', 'password', 'hostname'):
+                    try:
+                        title_indexes[item]
+                    except KeyError:
+                        raise RuntimeError("key '%s' was not provided for the ipmi_data at row %s" % (item, str(row_i + 1)))
+                
+                continue
+
+            # keep adding ipmi services till empty row or EOF
+            if row[0] in (None, "") and row[1] in (None, ""):
+                print('IPMI client data ended at row %s' % str(row_i + 1))
+                break
+
+            # create ipmi client
+            data={}
+            data["username"] = row[title_indexes['user']]
+            data["password"] = row[title_indexes['password']]
+            data["host"] = row[title_indexes['host_address']]
+            if title_indexes.get("port") and row[title_indexes["port"]]:
+                data["port"] = int(row[title_indexes["port"]])
+
+            robot.services.find_or_create(
+                "github.com/zero-os/0-boot-templates/ipmi_client/0.0.1",
+                row[title_indexes["hostname"]],
+                data=data,
+            )
+        else:
+            if not ipmi_data_found:
+                print("No ipmi client data was found")
+            else:
+                print("IPMI client data ended at last row")
+
+def create_ipmi_host_services(robot, data_file):
+    """Creates the ipmi host services
+    
+    Arguments:
+        robot {ZRobot} -- Robot instance
+        data_file {str} -- Location of CSV file
+
+    Returns:
+        [str] -- List of host service names created
+    """
+    hosts = []
+
+    with open(data_file, newline='') as csvfile:
+        rdr = csv.reader(csvfile, delimiter=',')
+        host_data_found = False
+        title_indexes = {}
+        row_i = -1
+        for row in rdr:
+            row_i += 1
+            # find host data starting row
+            if not host_data_found:
+                if str(row[0]).lower() == ('ipmi_host_data'):
+                    print("ipmi_host_data header found at row %s" % str(row_i + 1))
+                    host_data_found = True
+                continue
+
+            # the column titles should be in the next row
+            if not title_indexes:
+                col_i = 0
+                for col in row:
+                    if col.lower() == 'zboot_service':
+                        title_indexes['zboot_service'] = col_i
+                    if col.lower() == 'ipmi_service':
+                        title_indexes['ipmi_service'] = col_i
+                    if col.lower() == 'mac':
+                        title_indexes['mac'] = col_i
+                    if col.lower() == 'ip':
+                        title_indexes['ip'] = col_i
+                    if col.lower() == 'network':
+                        title_indexes['network'] = col_i
+                    if col.lower() == 'hostname':
+                        title_indexes['hostname'] = col_i
+                    if col.lower() == 'lkrn_url':
+                        title_indexes['lkrn_url'] = col_i
+                    col_i += 1
+                
+                # check required columns
+                for item in ('zboot_service', 'ipmi_service', 'mac', 'ip', 'network', 'lkrn_url'):
+                    try:
+                        title_indexes[item]
+                    except KeyError:
+                        raise RuntimeError("key '%s' was not provided for the ipmi_host_data at row %s" % (item, str(row_i + 1)))
+
+                continue
+            
+            # keep adding ipmi hosts till empty row or EOF
+            if row[0] in (None, "") and row[1] in (None, ""):
+                print('Host data ended at row %s' % str(row_i + 1))
+                break
+
+            # if service already exists, skip
+            s = robot.services.find(name=row[title_indexes['hostname']])
+            if len(s) > 0:
+                print("There is already a service running for host %s. Skipping to next host" % row[title_indexes['hostname']])
+                continue
+
+            data = {}
+            data["zerobootClient"] = row[title_indexes['zboot_service']]
+            data["mac"] = row[title_indexes['mac']].lower()
+            data["ip"] = row[title_indexes['ip']]
+            data["hostname"] = row[title_indexes['hostname']]
+            data["network"] = row[title_indexes['network']]
+            data["lkrn_url"] = row[title_indexes['lkrn_url']]
+            data["ipmiClient"] = row[title_indexes['ipmi_service']]
+
+            host_service = robot.services.create(
+                "github.com/zero-os/0-boot-templates/zeroboot_ipmi_host/0.0.1",
+                data["hostname"],
+                data=data,
+            )
+            host_service.schedule_action('install').wait(die=True)
+
+            hosts.append(data["hostname"])
+
+        else:
+            if not host_data_found:
+                print("No ipmi_host_data was found")
+            else:
+                print("ipmi_host_data ended at last row")
+
+    return hosts
 
 def add_hosts_pool_service(robot, hosts, pool_name):
     """Creates the pool service if it doesn't exist and adds all provided hosts in that pool

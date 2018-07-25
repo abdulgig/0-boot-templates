@@ -32,6 +32,19 @@ The current supported service and config titles are:
     - `ztier_network`: Zerotier network
     - `ssh_service`: SSH service to the zboot host/router
     - `ztier_service`: (optional) zerotier service/client name
+ - `ipmi_data`: IPMI client service data
+    - `host_address`: address of the ipmi interface
+    - `hostname`: hostname of the ipmi device, will be used for service name
+    - `user`: Username for the ipmi interface
+    - `password`: Password for the ipmi interface
+    - `port`: (optional) Client access port on the ipmi device 
+ - `ipmi_host_data`: ipmi host service data
+    - `zboot_service`: zeroboot service name
+    - `ipmi_service`: ipmi service for this host
+    - `ip`: local ip address of the host
+    - `network`: network the host is in
+    - `hostname`: hostname of the host
+    - `lkrn_url`: Boot url
  - `racktivity_data`: Racktivity client service data
     - `host_address`: address of the racktivity device
     - `hostname`: hostname of the racktivity device, will be used for service name
@@ -39,7 +52,7 @@ The current supported service and config titles are:
     - `password`: Password for the racktivity device
     - `port`: (optional) Client access port on the racktivity device 
  - `rack_host_data`: racktivity host service data
-    - `zboot_service`: zerboot service name
+    - `zboot_service`: zeroboot service name
     - `racktivity_data`: racktivity data (format: <racktivity client/service>;<port>;<powermodule>  powermodule is optional, only for SE models)
     - `redundant_racktivity_data`: (optional, meant for a redundant power supply) Format the same as `racktivity_data`
     - `mac`: mac address of the host
