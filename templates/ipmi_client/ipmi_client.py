@@ -29,7 +29,7 @@ class IpmiClient(TemplateBase):
         data = {
             'bmc': bmc,
             'user': user,
-            'password': password,
+            'password_': password,
             'port': self.data.get('port')
         }
         _ = j.clients.ipmi.get(instance=self.name, data=data, interactive=False)
