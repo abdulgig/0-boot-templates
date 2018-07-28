@@ -23,7 +23,7 @@ What is this script do?
 
 from js9 import j
 # lkrnurl
-lkrn_url = 'https://bootstrap.gig.tech/krn/v1.4.1/c7c8172af1f387a6/farmer_id=eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJhenAiOiJ0aHJlZWZvbGQuZmFybWVycyIsImV4cCI6MTUyNzI0ODQ5NCwiaXNzIjoiaXRzeW91b25saW5lIiwicmVmcmVzaF90b2tlbiI6IkNJbW9wQ3YzNGlOMXRubm9XWXlQcnZJcUFHN1MiLCJzY29wZSI6WyJ1c2VyOm1lbWJlcm9mOmtyaXN0b2YtZmFybSJdLCJ1c2VybmFtZSI6ImRlc3BpZWdrIn0.dyFuU8TWkvwuY4R9JLbohkrw5J-8XilXswfwFQyauAGfT43k495__l6Pv8DNKGwDliL5miaeYAhaOxStavMfjDJoc5_arqCKpiDBhDigRtSLirU6WNHLSth7_3nog25V'
+lkrn_url = 'https://bootstrap.gig.tech/krn/v1.4.1/c7c8172af1f387a6/farmer_id='
 
 hosts = [{"network":"10.2.0.0/16",
          "hostname":"ipmi-storage03",
